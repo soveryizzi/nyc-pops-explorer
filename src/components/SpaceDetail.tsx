@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { AMENITIES } from '../lib/constants'
 import { googleMapsUrl, type PopsSpace } from '../lib/resolvers'
 import { useDialogClose } from '../hooks/useDialogClose'
@@ -15,10 +16,15 @@ const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
 }
 
 export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
-  const closeButtonRef = useDialogClose<HTMLButtonElement>(onClose)
+  const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(onClose)
 
   return (
-    <div role="dialog" aria-label={space.name} className="space-detail">
+    <div
+      ref={containerRef as RefObject<HTMLDivElement>}
+      role="dialog"
+      aria-label={space.name}
+      className="space-detail"
+    >
       <div className={`space-detail__header space-detail__header--${space.indoor ? 'indoor' : 'outdoor'}`}>
         <div>
           <h2 className="space-detail__name">{space.name}</h2>

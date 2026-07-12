@@ -33,13 +33,19 @@ function App() {
 
   return (
     <div className="app">
-      <MapView
-        spaces={filteredSpaces}
-        selectedId={filters.space}
-        onSelect={handleSelect}
-        onDeselect={handleDeselect}
-        initialViewState={initialMapView}
-      />
+      <a href="#main-content" className="skip-link">
+        Skip to map
+      </a>
+
+      <main id="main-content" tabIndex={-1} aria-label="Map">
+        <MapView
+          spaces={filteredSpaces}
+          selectedId={filters.space}
+          onSelect={handleSelect}
+          onDeselect={handleDeselect}
+          initialViewState={initialMapView}
+        />
+      </main>
 
       {!isMobile && (
         <Sidebar
@@ -59,20 +65,24 @@ function App() {
 
       {isMobile && (
         <>
-          <div className="mobile-topbar">
+          <header className="mobile-topbar">
             <AppHeader filters={filters} update={update} />
-          </div>
+          </header>
 
           {mobileView === 'list' && (
-            <ResultList
-              spaces={filteredSpaces}
-              selectedId={filters.space}
-              onSelect={handleSelect}
-              className="mobile-list"
-            />
+            <nav aria-label="POPS results" className="mobile-list-nav">
+              <ResultList
+                spaces={filteredSpaces}
+                selectedId={filters.space}
+                onSelect={handleSelect}
+                className="mobile-list"
+              />
+            </nav>
           )}
 
-          <ViewToggle view={mobileView} onChange={setMobileView} />
+          <nav aria-label="View mode">
+            <ViewToggle view={mobileView} onChange={setMobileView} />
+          </nav>
 
           {selected && (
             <MobileSheet onBackdropClick={handleDeselect}>

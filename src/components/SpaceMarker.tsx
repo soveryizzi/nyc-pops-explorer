@@ -14,8 +14,12 @@ export function SpaceMarker({ indoor, selected, label, onClick }: SpaceMarkerPro
   const stroke = selected ? '#ffffff' : 'none'
 
   return (
+    // Excluded from tab order: with ~400 markers this would make Tab
+    // unusable, and the list cards already provide a keyboard path to every
+    // space's detail view.
     <button
       type="button"
+      tabIndex={-1}
       aria-label={label}
       aria-pressed={selected}
       onClick={(e) => {
