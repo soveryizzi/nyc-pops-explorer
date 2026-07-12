@@ -12,7 +12,12 @@
       "Bash(chmod +x ~/.local/bin/gh)",
       "Bash(~/.local/bin/gh --version)",
       "Bash(rm -rf /tmp/gh.zip /tmp/gh_2.96.0_macOS_arm64)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(gh config *)",
+      "Read(//Users/isabellamontoya/**)",
+      "Bash(git config *)",
+      "Bash(git push *)"
     ]
   }
 }
