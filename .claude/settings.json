@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node smoke4.mjs)",
+      "Bash(node smoke5.mjs)",
+      "Bash(pkill -f \"vite --port 5183\")",
+      "Bash(jobs -l)",
+      "Bash(gh auth *)",
+      "Bash(vercel --version)",
+      "Bash(brew list *)",
+      "Bash(cp /tmp/gh_2.96.0_macOS_arm64/bin/gh ~/.local/bin/gh)",
+      "Bash(chmod +x ~/.local/bin/gh)",
+      "Bash(~/.local/bin/gh --version)",
+      "Bash(rm -rf /tmp/gh.zip /tmp/gh_2.96.0_macOS_arm64)",
+      "Bash(git add *)"
+    ]
+  }
+}
