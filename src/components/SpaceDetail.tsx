@@ -1,85 +1,79 @@
-import { useEffect, useRef } from 'react'
+import { AMENITIES } from '../lib/constants'
 import { googleMapsUrl, type PopsSpace } from '../lib/resolvers'
+import { useDialogClose } from '../hooks/useDialogClose'
 
 interface SpaceDetailProps {
   space: PopsSpace
   onClose: () => void
 }
 
-export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
+const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
+  full: 'var(--color-ada-full)',
+  partial: 'var(--color-ada-partial)',
+  none: 'var(--color-ada-none)',
+  unknown: 'var(--color-ada-unknown)',
+}
 
-  useEffect(() => {
-    closeButtonRef.current?.focus()
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
+  const closeButtonRef = useDialogClose<HTMLButtonElement>(onClose)
 
   return (
-    <div
-      role="dialog"
-      aria-label={space.name}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        width: 320,
-        maxWidth: 'calc(100vw - 32px)',
-        background: 'var(--color-surface)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          background: space.indoor ? 'var(--color-indoor)' : 'var(--color-outdoor)',
-          color: '#fff',
-          padding: 'var(--space-4)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 'var(--space-2)',
-        }}
-      >
+    <div role="dialog" aria-label={space.name} className="space-detail">
+      <div className={`space-detail__header space-detail__header--${space.indoor ? 'indoor' : 'outdoor'}`}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 18 }}>{space.name}</h2>
-          <a
-            href={googleMapsUrl(space.raw)}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: '#fff', fontSize: 13 }}
-          >
+          <h2 className="space-detail__name">{space.name}</h2>
+          <a href={googleMapsUrl(space.raw)} target="_blank" rel="noreferrer" className="space-detail__address">
             {space.address || 'Address unavailable'}
           </a>
         </div>
-        <button
-          ref={closeButtonRef}
-          type="button"
-          aria-label="Close detail"
-          onClick={onClose}
-          style={{
-            background: 'rgba(255,255,255,0.25)',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            color: '#fff',
-            width: 28,
-            height: 28,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
+        <button ref={closeButtonRef} type="button" aria-label="Close detail" className="space-detail__close" onClick={onClose}>
           ×
         </button>
       </div>
-      <div style={{ padding: 'var(--space-4)', fontSize: 14, color: 'var(--color-ink-soft)' }}>
-        <p style={{ margin: 0 }}>
-          {space.borough} · {space.spaceType || 'Space type unknown'}
-        </p>
+
+      <div className="space-detail__body">
+        <div className="space-detail__tags">
+          {space.borough && <span className="tag tag--outline">{space.borough}</span>}
+          <span className={`tag tag--${space.indoor ? 'indoor' : 'outdoor'}`}>{space.indoor ? 'Indoor' : 'Outdoor'}</span>
+          {space.spaceType && <span className="tag tag--neutral">{space.spaceType}</span>}
+        </div>
+
+        <section aria-label="Amenities" className="space-detail__section">
+          <h3 className="space-detail__section-title">Amenities</h3>
+          <ul className="amenity-checklist">
+            {AMENITIES.map((amenity) => {
+              const present = space.amenities.has(amenity.id)
+              return (
+                <li key={amenity.id} className="amenity-checklist__item" data-present={present}>
+                  <span aria-hidden="true">{present ? '✓' : '✕'}</span>
+                  <span>{amenity.label}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+
+        <section aria-label="Hours" className="space-detail__section space-detail__hours">
+          <h3 className="space-detail__section-title">Hours</h3>
+          <p>{space.hours}</p>
+          <p className="space-detail__hours-caveat">
+            ⚠️ This data may be out of date — confirm hours before visiting.
+          </p>
+        </section>
+
+        <section aria-label="Accessibility" className="space-detail__section">
+          <h3 className="space-detail__section-title">Accessibility</h3>
+          <p style={{ color: ADA_COLOR[space.ada.status] }} className="space-detail__ada-label">
+            ♿ {space.ada.label}
+          </p>
+          {space.ada.subtitle && <p className="space-detail__ada-subtitle">{space.ada.subtitle}</p>}
+        </section>
+
+        {space.apopsUrl && (
+          <a href={space.apopsUrl} target="_blank" rel="noreferrer" className="button button--primary">
+            View on APOPS
+          </a>
+        )}
       </div>
     </div>
   )

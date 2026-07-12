@@ -1,4 +1,4 @@
-import { AMENITY_KEYWORDS, INDOOR_KEYWORDS } from './constants'
+import { AMENITIES, INDOOR_KEYWORDS, type AmenityKey } from './constants'
 
 // Raw record shape from the Socrata POPS dataset. Fields are inconsistent —
 // most are optional free text and must go through the resolvers below rather
@@ -26,8 +26,6 @@ export interface RawPopsRecord {
   zip_code?: string
   [key: string]: unknown
 }
-
-export type AmenityKey = keyof typeof AMENITY_KEYWORDS
 
 export type AdaStatus = 'full' | 'partial' | 'none' | 'unknown'
 
@@ -115,9 +113,9 @@ export function resolveAmenities(record: RawPopsRecord): Set<AmenityKey> {
   const result = new Set<AmenityKey>()
   if (!text || text === 'none') return result
 
-  for (const [key, keywords] of Object.entries(AMENITY_KEYWORDS) as [AmenityKey, readonly string[]][]) {
+  for (const { id, keywords } of AMENITIES) {
     if (keywords.some((keyword) => text.includes(keyword))) {
-      result.add(key)
+      result.add(id)
     }
   }
   return result

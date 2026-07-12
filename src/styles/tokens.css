@@ -8,6 +8,14 @@
   --color-outdoor: #d9691f;
   --color-indoor: #2b7fb8;
 
+  /* ADA states */
+  --color-ada-full: #1f7a4d;
+  --color-ada-partial: #a5680a;
+  --color-ada-none: #8a8f8c;
+  --color-ada-unknown: #8a8f8c;
+
+  --color-hours-tint: #fdf3d9;
+
   /* ink / surface */
   --color-ink: #16211e;
   --color-ink-soft: #45534f;
@@ -33,4 +41,9 @@
   --space-6: 32px;
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --z-map-controls: 10;
+  --z-panel: 20;
+  --z-detail: 30;
+  --z-sheet: 40;
 }
