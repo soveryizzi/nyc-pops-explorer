@@ -5,21 +5,14 @@ interface SpaceMarkerProps {
   onClick: () => void
 }
 
-const SIZE = 32
-const SIZE_SELECTED = 42
-
 export function SpaceMarker({ indoor, selected, label, onClick }: SpaceMarkerProps) {
-  const size = selected ? SIZE_SELECTED : SIZE
-  const fill = selected ? 'var(--color-primary-dark)' : indoor ? 'var(--color-indoor)' : 'var(--color-outdoor)'
+  const size = selected ? 32 : 20
+  const fill = selected ? 'var(--green-800)' : indoor ? 'var(--color-indoor)' : 'var(--color-outdoor)'
   const stroke = selected ? '#ffffff' : 'none'
 
   return (
-    // Excluded from tab order: with ~400 markers this would make Tab
-    // unusable, and the list cards already provide a keyboard path to every
-    // space's detail view.
     <button
       type="button"
-      tabIndex={-1}
       aria-label={label}
       aria-pressed={selected}
       onClick={(e) => {

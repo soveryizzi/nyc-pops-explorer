@@ -1,52 +1,111 @@
 :root {
-  /* brand */
-  --color-primary: #007263;
-  --color-primary-dark: #00584d;
-  --color-accent: #f5cb5c;
+  /* Primitive colors — from Figma Design System */
+  --green-050: #f4faf8;
+  --green-100: #dcf2ed;
+  --green-700: #007263;
+  --green-800: #00594e;
+  --green-950: #003b33;
 
-  /* space type — darkened from the original #d9691f/#2b7fb8 so white text/icons
-     on these backgrounds clears WCAG AA (4.5:1); verified via scratchpad/contrast.mjs */
-  --color-outdoor: #b25619;
-  --color-indoor: #2877ad;
+  --yellow-100: #fdf6dc;
+  --yellow-400: #f5cb5c;
 
-  /* ADA states — ada-none/unknown darkened from #8a8f8c (was 3.29:1 on white, needs 4.5:1) */
-  --color-ada-full: #1f7a4d;
-  --color-ada-partial: #a5680a;
-  --color-ada-none: #6c706d;
-  --color-ada-unknown: #6c706d;
+  --orange-100: #fbede2;
+  --orange-600: #b5541a;
+  --orange-900: #8a3e0f;
 
-  --color-hours-tint: #fdf3d9;
+  --blue-100: #e3f4fd;
+  --blue-600: #0071a4;
+  --blue-900: #005a83;
 
-  /* ink / surface */
-  --color-ink: #16211e;
-  --color-ink-soft: #45534f;
-  --color-surface: #ffffff;
-  --color-surface-mint: #eef5f1;
-  --color-border: #d7e2dd;
+  --ink-500: #5f6e6b;
+  --ink-700: #44504d;
+  --ink-900: #1e2523;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --neutral-border: #dde8e6;
+  --neutral-white: #ffffff;
 
+  --slate-100: #e9f1f6;
+  --slate-700: #3d5866;
+
+  --gray-100: #f0f0f0;
+
+  /* Semantic colors */
+  --color-primary: var(--green-700);
+  --color-primary-dark: var(--green-800);
+  --color-accent: var(--yellow-400);
+  --color-outdoor: var(--orange-600);
+  --color-indoor: var(--blue-600);
+
+  --color-ink: var(--ink-900);
+  --color-ink-soft: var(--ink-700);
+  --color-surface: var(--neutral-white);
+  --color-border: var(--neutral-border);
+  --color-focus: var(--blue-600);
+
+  /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
 
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 999px;
+
+  /* Typography */
+  --type-size-xs: 12px;
+  --type-size-sm: 14px;
+  --type-size-base: 16px;
+  --type-size-lg: 20px;
+  --type-size-xl: 24px;
+  --type-size-display: 32px;
+
+  --type-weight-regular: 400;
+  --type-weight-semibold: 600;
+  --type-weight-extrabold: 800;
+
+  --type-leading-tight: 1.2;
+  --type-leading-normal: 1.5;
+
+  /* Motion */
+  --motion-duration-fast: 150ms;
+  --motion-duration-slow: 400ms;
+  --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Map styling */
+  --map-land: #eff5f1;
+  --map-water: #cfe6e9;
+  --map-road: #ffffff;
+  --map-road-casing: #dce7e2;
+  --map-park: #dfeee3;
+  --map-label: #5f6e6b;
+  --map-building: #e6eeea;
+
+  /* Markers */
+  --marker-size-default: 20px;
+  --marker-size-selected: 32px;
+
+  /* Font stack */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  --text-2xs: 10px;
-  --text-xs: 12px;
-  --text-sm: 13px;
-  --text-base: 14px;
-  --text-md: 16px;
-  --text-lg: 18px;
-  --text-xl: 22px;
-
-  --z-map-controls: 10;
+  /* Z-index scale */
+  --z-base: 0;
+  --z-map: 1;
+  --z-controls: 10;
   --z-panel: 20;
   --z-detail: 30;
-  --z-sheet: 40;
+  --z-modal: 40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0ms;
+    --motion-duration-slow: 0ms;
+  }
 }
