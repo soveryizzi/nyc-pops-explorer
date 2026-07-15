@@ -562,30 +562,3 @@ a:focus-visible {
   margin: 2px 0 0;
   font-size: var(--type-size-sm);
   color: var(--color-ink-soft);
-}
-
-nav {
-  position: absolute;
-  top: var(--space-4);
-  left: var(--space-4);
-  bottom: var(--space-4);
-  z-index: var(--z-panel);
-}
-
-.mobile-list-nav {
-  display: contents;
-}
-
-.view-toggle-nav {
-  display: contents;
-}
-
-main {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-main:focus {
-  outline: none;
-}

@@ -26,14 +26,12 @@ function App() {
 
   return (
     <div className="app">
-      <main tabIndex={-1}>
-        <MapView
-          spaces={filteredSpaces}
-          selectedId={filters.space}
-          onSelect={handleSelect}
-          onDeselect={handleDeselect}
-        />
-      </main>
+      <MapView
+        spaces={filteredSpaces}
+        selectedId={filters.space}
+        onSelect={handleSelect}
+        onDeselect={handleDeselect}
+      />
 
       {!isMobile && (
         <Sidebar
