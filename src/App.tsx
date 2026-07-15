@@ -36,15 +36,13 @@ function App() {
       </main>
 
       {!isMobile && (
-        <nav>
-          <Sidebar
-            spaces={filteredSpaces}
-            filters={filters}
-            update={update}
-            selectedId={filters.space}
-            onSelect={handleSelect}
-          />
-        </nav>
+        <Sidebar
+          spaces={filteredSpaces}
+          filters={filters}
+          update={update}
+          selectedId={filters.space}
+          onSelect={handleSelect}
+        />
       )}
 
       {!isMobile && selected && (
