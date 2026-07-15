@@ -26,21 +26,25 @@ function App() {
 
   return (
     <div className="app">
-      <MapView
-        spaces={filteredSpaces}
-        selectedId={filters.space}
-        onSelect={handleSelect}
-        onDeselect={handleDeselect}
-      />
-
-      {!isMobile && (
-        <Sidebar
+      <main tabIndex={-1}>
+        <MapView
           spaces={filteredSpaces}
-          filters={filters}
-          update={update}
           selectedId={filters.space}
           onSelect={handleSelect}
+          onDeselect={handleDeselect}
         />
+      </main>
+
+      {!isMobile && (
+        <nav>
+          <Sidebar
+            spaces={filteredSpaces}
+            filters={filters}
+            update={update}
+            selectedId={filters.space}
+            onSelect={handleSelect}
+          />
+        </nav>
       )}
 
       {!isMobile && selected && (
@@ -51,20 +55,24 @@ function App() {
 
       {isMobile && (
         <>
-          <div className="mobile-topbar">
+          <header className="mobile-topbar">
             <AppHeader filters={filters} update={update} />
-          </div>
+          </header>
 
           {mobileView === 'list' && (
-            <ResultList
-              spaces={filteredSpaces}
-              selectedId={filters.space}
-              onSelect={handleSelect}
-              className="mobile-list"
-            />
+            <nav aria-label="POPS results" className="mobile-list-nav">
+              <ResultList
+                spaces={filteredSpaces}
+                selectedId={filters.space}
+                onSelect={handleSelect}
+                className="mobile-list"
+              />
+            </nav>
           )}
 
-          <ViewToggle view={mobileView} onChange={setMobileView} />
+          <nav aria-label="View mode" className="view-toggle-nav">
+            <ViewToggle view={mobileView} onChange={setMobileView} />
+          </nav>
 
           {selected && (
             <MobileSheet onBackdropClick={handleDeselect}>

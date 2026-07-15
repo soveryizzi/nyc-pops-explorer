@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import Map, { AttributionControl, Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from '../lib/constants'
@@ -14,7 +14,17 @@ interface MapViewProps {
 
 export function MapView({ spaces, selectedId, onSelect, onDeselect }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
-  const mappable = spaces.filter((space) => space.coordinates !== null)
+  const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
+
+  useEffect(() => {
+    const container = mapRef.current?.getContainer()
+    if (!container) return
+    container.querySelectorAll('.maplibregl-marker[role="button"]').forEach((el) => {
+      el.removeAttribute('role')
+      el.removeAttribute('aria-label')
+      el.removeAttribute('tabindex')
+    })
+  }, [mappable])
 
   return (
     <Map
