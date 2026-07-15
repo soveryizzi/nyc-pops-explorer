@@ -579,3 +579,13 @@ nav {
 .view-toggle-nav {
   display: contents;
 }
+
+main {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+main:focus {
+  outline: none;
+}
