@@ -8,11 +8,13 @@ import { SpaceMarker } from './SpaceMarker'
 interface MapViewProps {
   spaces: PopsSpace[]
   selectedId: string | null
+  hoveredId: string | null
   onSelect: (id: string) => void
   onDeselect: () => void
+  onHover: (id: string | null) => void
 }
 
-export function MapView({ spaces, selectedId, onSelect, onDeselect }: MapViewProps) {
+export function MapView({ spaces, selectedId, hoveredId, onSelect, onDeselect, onHover }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
 
@@ -51,8 +53,10 @@ export function MapView({ spaces, selectedId, onSelect, onDeselect }: MapViewPro
           <SpaceMarker
             indoor={space.indoor}
             selected={space.id === selectedId}
+            hovered={space.id === hoveredId}
             label={space.name}
             onClick={() => onSelect(space.id)}
+            onHover={(hovering) => onHover(hovering ? space.id : null)}
           />
         </Marker>
       ))}

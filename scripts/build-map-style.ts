@@ -5,18 +5,19 @@ import { writeFile } from 'node:fs/promises'
 const SOURCE_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty'
 const OUT_PATH = new URL('../public/map-style.json', import.meta.url)
 
+// Field Guide palette — keep in sync with the --map-* tokens in src/styles/tokens.css
 const PALETTE = {
-  land: '#f4f1e8',
-  landcoverGreen: '#d3e6cf',
-  park: '#c7ddc0',
-  water: '#cfe3e6',
-  building: '#e9e4d8',
+  land: '#f4f2e6',
+  landcoverGreen: '#d8e5cc',
+  park: '#c8dcba',
+  water: '#c7dfe3',
+  building: '#e9e6d8',
   roadMinor: '#ffffff',
-  roadMajor: '#fdf6de',
-  roadCasing: '#d7d0bd',
-  boundary: '#c8b98e',
-  labelText: '#45534f',
-  labelHalo: '#f4f1e8',
+  roadMajor: '#faf3dc',
+  roadCasing: '#d9d5c2',
+  boundary: '#c2b896',
+  labelText: '#47523f',
+  labelHalo: '#f4f2e6',
 }
 
 // Recursively replace a paint color value regardless of nesting (plain string
@@ -59,7 +60,11 @@ async function main() {
   if (!res.ok) throw new Error(`Failed to fetch base style: ${res.status}`)
   const style = (await res.json()) as { layers?: any[]; [key: string]: unknown }
 
-  for (const layer of style.layers ?? []) {
+  // Drop 3D building extrusions — the app wants a flat map; the flat
+  // "building" fill layer (recolored below) remains.
+  style.layers = (style.layers ?? []).filter((layer) => layer.type !== 'fill-extrusion')
+
+  for (const layer of style.layers) {
     recolorLayer(layer)
   }
 

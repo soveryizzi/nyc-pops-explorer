@@ -7,6 +7,7 @@ import { SpaceDetail } from './components/SpaceDetail'
 import { Sidebar } from './components/Sidebar'
 import { ViewToggle, type MobileView } from './components/ViewToggle'
 import { useFilters } from './hooks/useFilters'
+import { useLingering } from './hooks/useLingering'
 import { useMediaQuery } from './hooks/useMediaQuery'
 import { useSpaces } from './hooks/useSpaces'
 import { useUrlState } from './hooks/useUrlState'
@@ -18,20 +19,31 @@ function App() {
   const filteredSpaces = useFilters(spaces, filters)
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
   const [mobileView, setMobileView] = useState<MobileView>('map')
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   const selected = spaces.find((space) => space.id === filters.space) ?? null
+
+  // Linger past close/switch so the exit animations can play.
+  const sheet = useLingering(isMobile ? selected : null, 340)
+  const list = useLingering(isMobile && mobileView === 'list' ? ('list' as const) : null, 200)
 
   const handleSelect = (id: string) => update({ space: id }, { push: true })
   const handleDeselect = () => update({ space: null }, { push: true })
 
   return (
     <div className="app">
-      <MapView
-        spaces={filteredSpaces}
-        selectedId={filters.space}
-        onSelect={handleSelect}
-        onDeselect={handleDeselect}
-      />
+      {/* .app-main is explicitly sized — a bare <main> collapses to
+          0 height and blanks the map (see Phase 3 history). */}
+      <main className="app-main" aria-label="Map of POPS locations">
+        <MapView
+          spaces={filteredSpaces}
+          selectedId={filters.space}
+          hoveredId={hoveredId}
+          onSelect={handleSelect}
+          onDeselect={handleDeselect}
+          onHover={setHoveredId}
+        />
+      </main>
 
       {!isMobile && (
         <Sidebar
@@ -39,7 +51,9 @@ function App() {
           filters={filters}
           update={update}
           selectedId={filters.space}
+          hoveredId={hoveredId}
           onSelect={handleSelect}
+          onHover={setHoveredId}
         />
       )}
 
@@ -52,16 +66,18 @@ function App() {
       {isMobile && (
         <>
           <header className="mobile-topbar">
-            <AppHeader filters={filters} update={update} />
+            <AppHeader filters={filters} update={update} resultCount={filteredSpaces.length} />
           </header>
 
-          {mobileView === 'list' && (
+          {list.shown && (
             <nav aria-label="POPS results" className="mobile-list-nav">
               <ResultList
                 spaces={filteredSpaces}
                 selectedId={filters.space}
+                hoveredId={hoveredId}
                 onSelect={handleSelect}
-                className="mobile-list"
+                onHover={setHoveredId}
+                className={`mobile-list${list.closing ? ' mobile-list--closing' : ''}`}
               />
             </nav>
           )}
@@ -70,9 +86,13 @@ function App() {
             <ViewToggle view={mobileView} onChange={setMobileView} />
           </nav>
 
-          {selected && (
-            <MobileSheet onBackdropClick={handleDeselect}>
-              <SpaceDetail space={selected} onClose={handleDeselect} />
+          {sheet.shown && (
+            <MobileSheet
+              tone={sheet.shown.indoor ? 'indoor' : 'outdoor'}
+              closing={sheet.closing}
+              onBackdropClick={handleDeselect}
+            >
+              <SpaceDetail space={sheet.shown} onClose={handleDeselect} />
             </MobileSheet>
           )}
         </>

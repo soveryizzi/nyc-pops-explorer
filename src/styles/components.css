@@ -1,3 +1,10 @@
+/* ==================================================================
+   Field Guide component styles. Consumes tokens.css only — no raw
+   hex or px type sizes in here. Layout DNA: sidebar flush against
+   the left viewport edge, green header with a right-side bracket
+   radius, floating cards with right-only rounded corners.
+   ================================================================== */
+
 /* Accessibility */
 .sr-only {
   position: absolute;
@@ -11,6 +18,33 @@
   border: 0;
 }
 
+/* Focus — lake blue ring on light surfaces; elements that live on
+   the green header override to the on-primary cream so the ring
+   never vanishes into its background. */
+.chip:focus-visible,
+.icon-button:focus-visible,
+.view-toggle__button:focus-visible,
+.space-card:focus-visible,
+.button:focus-visible,
+.search-bar__input:focus-visible,
+.search-bar__clear:focus-visible,
+.space-detail__close:focus-visible,
+.app-header__clear:focus-visible,
+.app-header__done:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app-header .chip:focus-visible,
+.app-header .icon-button:focus-visible,
+.app-header .search-bar__input:focus-visible,
+.app-header .search-bar__clear:focus-visible,
+.app-header .app-header__clear:focus-visible,
+.app-header .app-header__done:focus-visible {
+  outline-color: var(--color-on-primary);
+}
+
 /* Buttons & tags shared across components */
 
 .button {
@@ -18,8 +52,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
   font-weight: var(--type-weight-semibold);
   text-decoration: none;
   border: none;
@@ -28,7 +63,7 @@
 
 .button--primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .button--primary:hover {
@@ -39,26 +74,26 @@
   display: inline-flex;
   align-items: center;
   padding: 2px var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-size-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-semibold);
   line-height: 1.6;
 }
 
 .tag--outline {
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-ink-soft);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
 }
 
 .tag--outdoor {
   background: var(--color-outdoor);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .tag--indoor {
   background: var(--color-indoor);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .tag--neutral {
@@ -66,48 +101,49 @@
   color: var(--color-ink-soft);
 }
 
+/* Filter chips — these only appear inside the green header, so they
+   are styled as on-primary: outlined cream when idle, honey when on. */
 .chip {
   padding: var(--space-2) var(--space-3);
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-ink);
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--on-primary-outline);
+  background: transparent;
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
   font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease),
+    border-color var(--motion-duration-fast) var(--motion-ease),
+    color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.chip:hover {
+  background: var(--on-primary-veil-weak);
+  border-color: var(--color-on-primary);
 }
 
 .chip[data-pressed='true'] {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-ink);
 }
 
-.chip:focus-visible,
-.icon-button:focus-visible,
-.view-toggle__button:focus-visible,
-.space-card:focus-visible,
-.button:focus-visible,
-.search-bar__input:focus-visible,
-.search-bar__clear:focus-visible,
-.space-detail__close:focus-visible,
-.filter-panel__clear:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-/* App header (shared by desktop sidebar and mobile top bar) */
+/* App header (desktop sidebar top block + mobile top bar) */
 
 .app-header {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+  box-shadow: 0 8px 24px rgba(44, 78, 56, 0.28);
 }
 
 .app-header__title-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: var(--space-4);
   gap: var(--space-3);
 }
 
@@ -115,6 +151,7 @@ a:focus-visible {
   margin: 0;
   font-size: var(--type-size-xl);
   font-weight: var(--type-weight-extrabold);
+  line-height: var(--type-leading-tight);
 }
 
 .app-header__accent {
@@ -123,8 +160,8 @@ a:focus-visible {
 
 .app-header__subtitle {
   margin: 2px 0 0;
-  font-size: var(--type-size-sm);
-  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--type-size-xs);
+  color: var(--on-primary-muted);
 }
 
 .app-header__icons {
@@ -139,14 +176,29 @@ a:focus-visible {
   height: 36px;
   border-radius: var(--radius-sm);
   border: none;
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: var(--type-size-base);
+  background: var(--on-primary-veil);
+  color: var(--color-on-primary);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease),
+    color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.icon-button .material-icons {
+  font-size: var(--type-size-lg);
+}
+
+.icon-button:hover {
+  background: var(--on-primary-outline);
 }
 
 .icon-button[data-active='true'] {
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--color-on-primary);
+  color: var(--color-primary);
 }
 
 .icon-button__badge {
@@ -156,7 +208,7 @@ a:focus-visible {
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--color-accent);
   color: var(--color-ink);
   font-size: var(--type-size-xs);
@@ -164,16 +216,108 @@ a:focus-visible {
   line-height: 16px;
 }
 
+/* Collapsible panels living inside the green header. They're always
+   mounted; open/close animates via the grid-row 0fr→1fr technique
+   (the only way to transition to/from an auto height), with a small
+   fade/drift on the content. */
+
 .app-header__panel {
-  background: var(--color-surface);
-  color: var(--color-ink);
-  padding: var(--space-4);
-  border-top: 1px solid var(--color-border);
-  max-height: 60vh;
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  transition:
+    grid-template-rows var(--motion-duration-med) var(--motion-ease),
+    margin-top var(--motion-duration-med) var(--motion-ease);
+}
+
+.app-header__panel[data-open='true'] {
+  grid-template-rows: 1fr;
+  margin-top: var(--space-3);
+}
+
+.app-header__panel-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity var(--motion-duration-med) var(--motion-ease),
+    transform var(--motion-duration-med) var(--motion-ease);
+}
+
+.app-header__panel[data-open='true'] .app-header__panel-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cap the filter list so the count/Done footer stays reachable on
+   short viewports — the chip groups scroll, the footer stays pinned. */
+.app-header__panel .filter-panel {
+  max-height: 56vh;
   overflow-y: auto;
 }
 
-/* Search */
+/* Persistent bottom row of the header: result count on the left,
+   Clear filters (when any are active) and Done (when the filter
+   panel is open) on the right. */
+.app-header__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--on-primary-veil);
+}
+
+.app-header__meta-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app-header__count {
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-extrabold);
+  color: var(--color-on-primary);
+}
+
+.app-header__clear {
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-weight: var(--type-weight-semibold);
+  font-size: var(--type-size-sm);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-3);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.app-header__clear:hover {
+  background: var(--on-primary-veil-weak);
+}
+
+.app-header__done {
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-on-primary);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-extrabold);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.app-header__done:hover {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+
+/* Search (inside the green header) */
 
 .search-bar {
   position: relative;
@@ -183,10 +327,19 @@ a:focus-visible {
 
 .search-bar__input {
   flex: 1;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-size-base);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--on-primary-inset);
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+}
+
+.search-bar__input::placeholder {
+  color: var(--on-primary-muted);
+  font-weight: var(--type-weight-regular);
 }
 
 .search-bar__clear {
@@ -196,10 +349,10 @@ a:focus-visible {
   background: transparent;
   font-size: var(--type-size-lg);
   cursor: pointer;
-  color: var(--color-ink-soft);
+  color: var(--color-on-primary);
 }
 
-/* Filters */
+/* Filters (inside the green header) */
 
 .filter-panel {
   display: flex;
@@ -214,11 +367,11 @@ a:focus-visible {
 }
 
 .filter-group legend {
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-extrabold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-ink-soft);
+  letter-spacing: 0.08em;
+  color: var(--on-primary-muted);
   padding: 0 0 var(--space-2);
 }
 
@@ -228,31 +381,60 @@ a:focus-visible {
   gap: var(--space-2);
 }
 
-.filter-panel__clear {
-  align-self: flex-start;
-  border: none;
-  background: transparent;
-  color: var(--color-primary);
-  font-weight: var(--type-weight-semibold);
-  font-size: var(--type-size-sm);
-  cursor: pointer;
-  padding: 0;
+/* Result list + cards — cards float directly over the map, flush
+   against the left screen edge with right-only rounded corners.
+   Scrollbars are hidden (v1 pattern): they'd poke past the header's
+   rounded corner, and wheel/keys/drag all still scroll. */
+
+.sidebar__results,
+.mobile-list,
+.app-header__panel .filter-panel {
+  scrollbar-width: none;
 }
 
-/* Result list + cards */
-
-.result-list__count {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--type-size-sm);
-  color: var(--color-ink-soft);
-  border-bottom: 1px solid var(--color-border);
+.sidebar__results::-webkit-scrollbar,
+.mobile-list::-webkit-scrollbar,
+.app-header__panel .filter-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .result-list__items {
   list-style: none;
   margin: 0;
   padding: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.result-list__empty {
+  background: var(--color-surface);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  box-shadow: 0 2px 10px rgba(47, 58, 46, 0.14);
+  padding: var(--space-5) var(--space-4) var(--space-5) var(--space-5);
+}
+
+.result-list__empty-title {
+  margin: 0;
+  font-weight: var(--type-weight-extrabold);
+  color: var(--color-ink);
+}
+
+.result-list__empty-hint {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-size-sm);
+  color: var(--color-ink-soft);
+}
+
+@keyframes card-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .space-card {
@@ -260,22 +442,51 @@ a:focus-visible {
   align-items: flex-start;
   gap: var(--space-3);
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
   border: none;
-  border-bottom: 1px solid var(--color-border);
-  background: transparent;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: var(--color-surface);
+  box-shadow: 0 2px 10px rgba(47, 58, 46, 0.14);
   text-align: left;
+  font-family: var(--font-sans);
   cursor: pointer;
+  animation: card-slide-in 0.22s var(--motion-ease-spring) both;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease),
+    box-shadow var(--motion-duration-fast) var(--motion-ease);
+}
+
+/* Direct hover and map-pin hover (data-hovered mirrors the pin the
+   pointer is on) get the same ring highlight. */
+.space-card:hover,
+.space-card[data-hovered='true'] {
+  box-shadow:
+    0 0 0 2px var(--color-primary),
+    0 4px 16px rgba(47, 58, 46, 0.2);
 }
 
 .space-card[data-selected='true'] {
   background: var(--color-surface-mint);
+  box-shadow: 0 4px 16px rgba(44, 78, 56, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .space-card {
+    animation: none;
+  }
 }
 
 .space-card__icon {
   flex-shrink: 0;
-  font-size: var(--type-size-base);
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  margin-top: 3px;
+}
+
+.space-card__icon svg {
+  display: block;
 }
 
 .space-card__body {
@@ -286,7 +497,7 @@ a:focus-visible {
 }
 
 .space-card__name {
-  font-weight: var(--type-weight-semibold);
+  font-weight: var(--type-weight-extrabold);
   color: var(--color-ink);
 }
 
@@ -302,33 +513,54 @@ a:focus-visible {
   margin-top: 4px;
 }
 
-/* Desktop sidebar */
+/* Map markers — hovering a result card highlights its pin (and the
+   pin's own hover mirrors back to the card via data-hovered). */
+
+.space-marker svg {
+  transition: transform var(--motion-duration-fast) var(--motion-ease-spring);
+  transform-origin: 50% 100%;
+}
+
+.space-marker[data-hovered='true'] svg {
+  transform: scale(1.3);
+}
+
+.maplibregl-marker:has(.space-marker[data-hovered='true']) {
+  z-index: 5;
+}
+
+/* Desktop sidebar — transparent column flush to the left edge; the
+   green header and each card are the visible surfaces. */
 
 .sidebar {
   position: absolute;
   top: var(--space-4);
-  left: var(--space-4);
+  left: 0;
   bottom: var(--space-4);
-  width: 360px;
-  max-width: calc(100vw - 32px);
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  width: 400px;
+  max-width: calc(100vw - var(--space-8));
   z-index: var(--z-panel);
 }
 
-.sidebar__results {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  flex: 1;
+/* The green header floats above a full-height scroll container, so
+   cards visibly slide underneath it. --app-header-height is measured
+   and published by AppHeader; scroll-padding-top makes scrolled-to
+   cards land just below the header rather than behind it. */
+.sidebar .app-header {
+  position: relative;
+  z-index: 2;
 }
 
-.sidebar__results .result-list__items {
-  flex: 1;
+.sidebar__results {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow-y: auto;
+  padding: calc(var(--app-header-height, 120px) + var(--space-4)) var(--space-3) var(--space-2) 0;
+  scroll-padding-top: calc(var(--app-header-height, 120px) + var(--space-4));
+  /* Same radius as the header's top-right corner, so scrolled cards
+     clip along the exact curve instead of peeking through the notch. */
+  border-radius: 0 var(--radius-xl) 0 0;
 }
 
 /* Desktop detail card */
@@ -338,11 +570,11 @@ a:focus-visible {
   top: var(--space-4);
   right: var(--space-4);
   width: 360px;
-  max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 32px);
+  max-width: calc(100vw - var(--space-8));
+  max-height: calc(100vh - var(--space-8));
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 28px rgba(47, 58, 46, 0.25);
   overflow-y: auto;
   z-index: var(--z-detail);
 }
@@ -355,19 +587,61 @@ a:focus-visible {
   left: 0;
   right: 0;
   z-index: var(--z-panel);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-topbar .app-header {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.mobile-list-nav,
+.view-toggle-nav {
+  display: contents;
 }
 
 .mobile-list {
   position: absolute;
   inset: 0;
-  padding-top: 84px;
-  padding-bottom: 64px;
-  background: var(--color-surface);
+  padding: calc(var(--app-header-height, 120px) + var(--space-3)) var(--space-3) 76px 0;
+  scroll-padding-top: calc(var(--app-header-height, 120px) + var(--space-3));
+  background: var(--color-canvas);
   overflow-y: auto;
   z-index: var(--z-map-controls);
   display: flex;
   flex-direction: column;
+  animation: list-slide-in 0.24s var(--motion-ease-spring);
+}
+
+.mobile-list--closing {
+  animation: list-slide-out 0.2s var(--motion-ease) forwards;
+}
+
+@keyframes list-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes list-slide-out {
+  to {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-sheet,
+  .mobile-sheet--closing,
+  .mobile-sheet-backdrop,
+  .mobile-sheet-backdrop--closing,
+  .mobile-list,
+  .mobile-list--closing {
+    animation: none;
+  }
+}
+
+.mobile-list .result-list__items {
+  flex: none;
 }
 
 /* View toggle */
@@ -379,8 +653,8 @@ a:focus-visible {
   transform: translateX(-50%);
   display: flex;
   background: var(--color-surface);
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 14px rgba(47, 58, 46, 0.25);
   padding: 4px;
   z-index: var(--z-panel);
 }
@@ -389,26 +663,47 @@ a:focus-visible {
   padding: var(--space-2) var(--space-5);
   border: none;
   background: transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
   font-weight: var(--type-weight-semibold);
   font-size: var(--type-size-base);
   color: var(--color-ink-soft);
   cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease),
+    color var(--motion-duration-fast) var(--motion-ease);
 }
 
 .view-toggle__button[data-pressed='true'] {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
-
-/* Mobile sheet */
+/* Mobile sheet — springs in, and on close lifts a touch before
+   dropping away (the lingering render in App gives the exit time). */
 
 .mobile-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(27, 49, 35, 0.35);
   z-index: var(--z-sheet);
+  animation: backdrop-fade-in var(--motion-duration-fast) var(--motion-ease);
+}
+
+.mobile-sheet-backdrop--closing {
+  animation: backdrop-fade-out 0.34s var(--motion-ease) forwards;
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-fade-out {
+  to {
+    opacity: 0;
+  }
 }
 
 .mobile-sheet {
@@ -420,11 +715,15 @@ a:focus-visible {
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   overflow-y: auto;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
-  animation: slide-up 0.25s ease-out;
+  box-shadow: 0 -4px 20px rgba(27, 49, 35, 0.3);
+  animation: sheet-slide-up 0.38s var(--motion-ease-spring);
 }
 
-@keyframes slide-up {
+.mobile-sheet--closing {
+  animation: sheet-bounce-out 0.32s forwards;
+}
+
+@keyframes sheet-slide-up {
   from {
     transform: translateY(100%);
   }
@@ -433,21 +732,46 @@ a:focus-visible {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mobile-sheet {
-    animation: none;
+@keyframes sheet-bounce-out {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
   }
+  30% {
+    transform: translateY(-12px);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(103%);
+  }
+}
+
+/* Grabber cap — colored to match the space-type header directly
+   below it, so the top of the sheet reads as one block. */
+.mobile-sheet__cap {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--space-2) 0;
+}
+
+.mobile-sheet--outdoor .mobile-sheet__cap {
+  background: var(--color-outdoor);
+}
+
+.mobile-sheet--indoor .mobile-sheet__cap {
+  background: var(--color-indoor);
 }
 
 .mobile-sheet__handle {
   width: 36px;
   height: 4px;
-  border-radius: 999px;
-  background: var(--color-border);
-  margin: var(--space-2) auto;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.65);
+  margin: 0 auto;
 }
 
-/* Space detail content (used by both detail-card and mobile-sheet) */
+/* Space detail content (shared by detail-card and mobile-sheet) */
 
 .space-detail__header {
   display: flex;
@@ -455,7 +779,7 @@ a:focus-visible {
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-4);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .space-detail__header--outdoor {
@@ -469,12 +793,20 @@ a:focus-visible {
 .space-detail__name {
   margin: 0;
   font-size: var(--type-size-lg);
+  font-weight: var(--type-weight-extrabold);
 }
 
 .space-detail__address {
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-surface);
   font-size: var(--type-size-sm);
   text-decoration: underline;
+}
+
+.space-detail__address .material-icons {
+  font-size: var(--type-size-base);
 }
 
 .space-detail__close {
@@ -482,9 +814,9 @@ a:focus-visible {
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+  color: var(--color-surface);
   font-size: var(--type-size-base);
   cursor: pointer;
 }
@@ -504,10 +836,10 @@ a:focus-visible {
 
 .space-detail__section-title {
   margin: 0 0 var(--space-2);
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-xs);
   font-weight: var(--type-weight-extrabold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   color: var(--color-ink-soft);
 }
 
@@ -539,7 +871,7 @@ a:focus-visible {
 
 .space-detail__hours {
   background: var(--color-hours-tint);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: var(--space-3);
 }
 
@@ -553,6 +885,10 @@ a:focus-visible {
   color: var(--color-ink-soft);
 }
 
+.space-detail__apops {
+  margin-top: var(--space-3);
+}
+
 .space-detail__ada-label {
   font-weight: var(--type-weight-extrabold);
   margin: 0;
@@ -562,3 +898,4 @@ a:focus-visible {
   margin: 2px 0 0;
   font-size: var(--type-size-sm);
   color: var(--color-ink-soft);
+}

@@ -42,6 +42,17 @@ function firstNonEmpty(...values: (string | undefined)[]): string | undefined {
   return undefined
 }
 
+// Socrata addresses arrive ALL CAPS ("334 WALLABOUT STREET, Brooklyn, NY
+// 11206"); convert to title case for display. Numbers keep ordinal
+// suffixes lowercase (53RD → 53rd) and NY/NYC stay uppercase.
+function titleCaseAddress(value: string): string {
+  return value.replace(/[A-Za-z0-9']+/g, (word) => {
+    if (word === 'NY' || word === 'NYC') return word
+    if (/^\d/.test(word)) return word.toLowerCase()
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  })
+}
+
 export function resolveId(record: RawPopsRecord): string {
   return firstNonEmpty(record.pops_number, record.building_address_with_zip) ?? ''
 }
@@ -51,27 +62,27 @@ export function resolveName(record: RawPopsRecord): string {
     ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
     : undefined
 
-  return (
-    firstNonEmpty(
-      record.building_name,
-      record.principal_public_space,
-      record.space_name,
-      record.pops_name,
-      addressNumberAndStreet,
-      record.building_address_with_zip,
-    ) ?? 'Unnamed space'
+  const name = firstNonEmpty(
+    record.building_name,
+    record.principal_public_space,
+    record.space_name,
+    record.pops_name,
   )
+  if (name) return name
+
+  // Address-shaped fallbacks get the same casing treatment as addresses.
+  const addressName = firstNonEmpty(addressNumberAndStreet, record.building_address_with_zip)
+  return addressName ? titleCaseAddress(addressName) : 'Unnamed space'
 }
 
 export function resolveAddress(record: RawPopsRecord): string {
-  return (
-    firstNonEmpty(
-      record.building_address_with_zip,
-      firstNonEmpty(record.address_number, record.street_name)
-        ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
-        : undefined,
-    ) ?? ''
+  const address = firstNonEmpty(
+    record.building_address_with_zip,
+    firstNonEmpty(record.address_number, record.street_name)
+      ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
+      : undefined,
   )
+  return address ? titleCaseAddress(address) : ''
 }
 
 export function resolveBorough(record: RawPopsRecord): string {

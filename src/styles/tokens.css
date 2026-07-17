@@ -1,64 +1,90 @@
 :root {
-  /* Primitive colors — from Figma Design System */
-  --green-050: #f4faf8;
-  --green-100: #dcf2ed;
-  --green-700: #007263;
-  --green-800: #00594e;
-  --green-950: #003b33;
+  /* ============================================================
+     Field Guide design system — botanical, rounded, approachable.
+     Sage greens + cream surfaces, terracotta/honey accents.
+     Every foreground/background pair used in components has been
+     verified against WCAG AA (4.5:1 normal text, 3:1 large/UI).
+     ============================================================ */
 
-  --yellow-100: #fdf6dc;
-  --yellow-400: #f5cb5c;
+  /* Primitive colors */
+  --green-050: #f3f7ef;
+  --green-100: #eaf2e4; /* selected-card tint */
+  --green-200: #d9e5d0;
+  --green-600: #3e6b4e; /* white/cream text on this: 6.1:1 ✓ */
+  --green-800: #2c4e38;
+  --green-950: #1b3123;
 
-  --orange-100: #fbede2;
-  --orange-600: #b5541a;
-  --orange-900: #8a3e0f;
+  --cream-050: #fffdf8; /* "white" for text/surfaces on green */
+  --cream-100: #fbf9f2; /* app canvas */
 
-  --blue-100: #e3f4fd;
-  --blue-600: #0071a4;
-  --blue-900: #005a83;
+  --honey-100: #fbf0d3;
+  --honey-400: #f4d06f; /* pair with ink text only (8.4:1 ✓) — fails vs white */
+  --honey-800: #7a5e19; /* on white: 6.1:1 ✓ */
 
-  --ink-500: #5f6e6b;
-  --ink-700: #44504d;
-  --ink-900: #1e2523;
+  --terracotta-600: #c2501f; /* vermilion — brightest orange that keeps white text AA (4.7:1 ✓) */
+  --terracotta-800: #8f3e1c; /* on white: 7.3:1 ✓ */
 
-  --neutral-border: #dde8e6;
+  --lake-600: #33708f; /* white text on this: 5.4:1 ✓ */
+
+  --ink-900: #2f3a2e;
+  --ink-600: #5c6858; /* on white 5.9:1, on cream canvas 5.6:1 ✓ */
+
+  --neutral-border: #dfe7da;
   --neutral-white: #ffffff;
 
-  --slate-100: #e9f1f6;
-  --slate-700: #3d5866;
-
-  --gray-100: #f0f0f0;
-
   /* Semantic colors */
-  --color-primary: var(--green-700);
+  --color-primary: var(--green-600);
   --color-primary-dark: var(--green-800);
-  --color-accent: var(--yellow-400);
-  --color-outdoor: var(--orange-600);
-  --color-indoor: var(--blue-600);
+  --color-accent: var(--honey-400);
+  --color-outdoor: var(--terracotta-600);
+  --color-indoor: var(--lake-600);
 
   --color-ink: var(--ink-900);
-  --color-ink-soft: var(--ink-700);
+  --color-ink-soft: var(--ink-600);
   --color-surface: var(--neutral-white);
+  --color-canvas: var(--cream-100);
+  --color-surface-mint: var(--green-100);
+  --color-hours-tint: var(--honey-100);
   --color-border: var(--neutral-border);
-  --color-focus: var(--blue-600);
+  --color-focus: var(--lake-600);
+
+  /* ADA status text colors (all on white/cream, ≥4.5:1 ✓) */
+  --color-ada-full: var(--green-600);
+  --color-ada-partial: var(--honey-800);
+  --color-ada-none: var(--terracotta-800);
+  --color-ada-unknown: var(--ink-600);
+
+  /* On-primary layer: text and translucent fills used inside the
+     green header. Outline mix vs green ≈ 3.6:1 (UI ✓); muted text
+     mix ≈ 5.1:1 ✓ (0.78 measured 4.42 — don't lower it). The inset
+     veil darkens instead of lightens so cream text on top of it
+     gains contrast (≈7:1 ✓) — use it behind any on-primary text. */
+  --color-on-primary: var(--cream-050);
+  --on-primary-veil-weak: rgba(255, 253, 248, 0.14);
+  --on-primary-veil: rgba(255, 253, 248, 0.2);
+  --on-primary-inset: rgba(27, 49, 35, 0.28);
+  --on-primary-outline: rgba(255, 253, 248, 0.55);
+  --on-primary-muted: rgba(255, 253, 248, 0.85);
 
   /* Spacing */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
   --space-12: 48px;
 
-  /* Radii */
-  --radius-sm: 8px;
+  /* Radii — Field Guide is soft: cards and panels round generously,
+     the sidebar header uses the full bracket radius. */
+  --radius-sm: 10px;
   --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-lg: 22px;
   --radius-xl: 32px;
   --radius-full: 999px;
 
-  /* Typography */
+  /* Typography — Nunito loaded in index.html */
   --type-size-xs: 12px;
   --type-size-sm: 14px;
   --type-size-base: 16px;
@@ -67,45 +93,50 @@
   --type-size-display: 32px;
 
   --type-weight-regular: 400;
-  --type-weight-semibold: 600;
-  --type-weight-extrabold: 800;
+  --type-weight-semibold: 700;
+  --type-weight-extrabold: 900;
 
   --type-leading-tight: 1.2;
   --type-leading-normal: 1.5;
 
-  /* Motion */
+  /* Motion — spring ease reserved for movement (transforms), the
+     standard ease for color/opacity so overshoot never hits paint. */
   --motion-duration-fast: 150ms;
+  --motion-duration-med: 250ms;
   --motion-duration-slow: 400ms;
   --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
 
-  /* Map styling */
-  --map-land: #eff5f1;
-  --map-water: #cfe6e9;
+  /* Map styling — keep in sync with PALETTE in scripts/build-map-style.ts */
+  --map-land: #f4f2e6;
+  --map-water: #c7dfe3;
   --map-road: #ffffff;
-  --map-road-casing: #dce7e2;
-  --map-park: #dfeee3;
-  --map-label: #5f6e6b;
-  --map-building: #e6eeea;
+  --map-road-casing: #d9d5c2;
+  --map-park: #c8dcba;
+  --map-label: #47523f;
+  --map-building: #e9e6d8;
 
   /* Markers */
   --marker-size-default: 20px;
   --marker-size-selected: 32px;
 
   /* Font stack */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Z-index scale */
   --z-base: 0;
   --z-map: 1;
-  --z-controls: 10;
+  --z-map-controls: 10;
   --z-panel: 20;
   --z-detail: 30;
-  --z-modal: 40;
+  --z-sheet: 40;
+  --z-modal: 50;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-duration-fast: 0ms;
+    --motion-duration-med: 0ms;
     --motion-duration-slow: 0ms;
   }
 }

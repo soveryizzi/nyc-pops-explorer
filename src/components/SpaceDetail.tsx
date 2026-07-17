@@ -29,7 +29,11 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
         <div>
           <h2 className="space-detail__name">{space.name}</h2>
           <a href={googleMapsUrl(space.raw)} target="_blank" rel="noreferrer" className="space-detail__address">
+            <span className="material-icons" aria-hidden="true">
+              map
+            </span>
             {space.address || 'Address unavailable'}
+            <span className="sr-only"> (opens in Google Maps)</span>
           </a>
         </div>
         <button ref={closeButtonRef} type="button" aria-label="Close detail" className="space-detail__close" onClick={onClose}>
@@ -65,6 +69,16 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
           <p className="space-detail__hours-caveat">
             ⚠️ This data may be out of date — confirm hours before visiting.
           </p>
+          {space.apopsUrl && (
+            <a
+              href={space.apopsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="button button--primary space-detail__apops"
+            >
+              View on APOPS
+            </a>
+          )}
         </section>
 
         <section aria-label="Accessibility" className="space-detail__section">
@@ -75,11 +89,6 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
           {space.ada.subtitle && <p className="space-detail__ada-subtitle">{space.ada.subtitle}</p>}
         </section>
 
-        {space.apopsUrl && (
-          <a href={space.apopsUrl} target="_blank" rel="noreferrer" className="button button--primary">
-            View on APOPS
-          </a>
-        )}
       </div>
     </div>
   )

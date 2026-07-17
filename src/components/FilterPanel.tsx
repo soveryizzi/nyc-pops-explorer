@@ -1,5 +1,4 @@
 import { AMENITIES, BOROUGHS } from '../lib/constants'
-import { countActiveFilters } from '../hooks/useFilters'
 import type { AdaFilter, FilterState, TypeFilter, UseUrlStateResult } from '../hooks/useUrlState'
 
 interface FilterPanelProps {
@@ -28,8 +27,6 @@ function Chip({
 }
 
 export function FilterPanel({ filters, update }: FilterPanelProps) {
-  const activeCount = countActiveFilters(filters)
-
   return (
     <div className="filter-panel">
       <fieldset className="filter-group">
@@ -87,16 +84,6 @@ export function FilterPanel({ filters, update }: FilterPanelProps) {
           ))}
         </div>
       </fieldset>
-
-      {activeCount > 0 && (
-        <button
-          type="button"
-          className="filter-panel__clear"
-          onClick={() => update({ borough: [], type: [], ada: [], amenity: [] }, { push: true })}
-        >
-          Clear {activeCount} filter{activeCount === 1 ? '' : 's'}
-        </button>
-      )}
     </div>
   )
 }
