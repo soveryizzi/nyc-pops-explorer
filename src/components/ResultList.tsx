@@ -10,7 +10,17 @@ interface ResultListProps {
   onHover: (id: string | null) => void
   onEmptySpaceClick?: () => void
   className?: string
+  /* True while the list itself is closing (e.g. switching mobile view
+     away from list) — reverses the entrance stagger, fast. */
+  closing?: boolean
 }
+
+// Entrance files in top-to-bottom; exit reverses (bottom leaves first)
+// and stays short so closing the list never feels like a wait.
+const ENTRANCE_STEP_MS = 28
+const ENTRANCE_STEP_CAP = 15
+const EXIT_STEP_MS = 12
+const EXIT_STEP_CAP = 8
 
 export function ResultList({
   spaces,
@@ -20,6 +30,7 @@ export function ResultList({
   onHover,
   onEmptySpaceClick,
   className,
+  closing = false,
 }: ResultListProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -76,17 +87,27 @@ export function ResultList({
   return (
     <div ref={containerRef} className={className} onClick={handleContainerClick}>
       <ul className="result-list__items">
-        {spaces.map((space) => (
-          <li key={space.id}>
-            <SpaceCard
-              space={space}
-              selected={space.id === selectedId}
-              hovered={space.id === hoveredId}
-              onSelect={onSelect}
-              onHover={onHover}
-            />
-          </li>
-        ))}
+        {spaces.map((space, index) => {
+          // Reversed relative to a small window, not the full (possibly
+          // hundreds-long) list — otherwise every card past the first
+          // few clamps to the same max delay instead of fanning out.
+          const delay = closing
+            ? Math.max(EXIT_STEP_CAP - index, 0) * EXIT_STEP_MS
+            : Math.min(index, ENTRANCE_STEP_CAP) * ENTRANCE_STEP_MS
+          return (
+            <li key={space.id}>
+              <SpaceCard
+                space={space}
+                selected={space.id === selectedId}
+                hovered={space.id === hoveredId}
+                onSelect={onSelect}
+                onHover={onHover}
+                closing={closing}
+                style={{ animationDelay: `${delay}ms` }}
+              />
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

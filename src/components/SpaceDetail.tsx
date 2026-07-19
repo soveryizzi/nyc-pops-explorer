@@ -6,6 +6,7 @@ import { useDialogClose } from '../hooks/useDialogClose'
 interface SpaceDetailProps {
   space: PopsSpace
   onClose: () => void
+  onViewOnMap?: () => void
 }
 
 const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
@@ -15,7 +16,7 @@ const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
   unknown: 'var(--color-ada-unknown)',
 }
 
-export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
+export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
   const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(onClose)
 
   return (
@@ -28,24 +29,43 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
       <div className={`space-detail__header space-detail__header--${space.indoor ? 'indoor' : 'outdoor'}`}>
         <div>
           <h2 className="space-detail__name">{space.name}</h2>
-          <a href={googleMapsUrl(space.raw)} target="_blank" rel="noreferrer" className="space-detail__address">
-            <span className="material-icons" aria-hidden="true">
-              map
-            </span>
-            {space.address || 'Address unavailable'}
-            <span className="sr-only"> (opens in Google Maps)</span>
+          <a
+            href={googleMapsUrl(space.raw)}
+            target="_blank"
+            rel="noreferrer"
+            className="space-detail__address"
+          >
+            {space.address ? `Route me to ${space.address}` : 'Address unavailable'}
           </a>
         </div>
-        <button ref={closeButtonRef} type="button" aria-label="Close detail" className="space-detail__close" onClick={onClose}>
-          ×
-        </button>
+        <div className="space-detail__header-actions">
+          {onViewOnMap && (
+            <button type="button" aria-label="View on map" className="space-detail__map-action" onClick={onViewOnMap}>
+              <span className="material-icons" aria-hidden="true">
+                map
+              </span>
+            </button>
+          )}
+          <button ref={closeButtonRef} type="button" aria-label="Close detail" className="space-detail__close" onClick={onClose}>
+            ×
+          </button>
+        </div>
       </div>
 
       <div className="space-detail__body">
         <div className="space-detail__tags">
           {space.borough && <span className="tag tag--outline">{space.borough}</span>}
           <span className={`tag tag--${space.indoor ? 'indoor' : 'outdoor'}`}>{space.indoor ? 'Indoor' : 'Outdoor'}</span>
-          {space.spaceType && <span className="tag tag--neutral">{space.spaceType}</span>}
+          {space.spaceType &&
+            space.spaceType
+              .split(/[;,]/)
+              .map((type) => type.trim())
+              .filter(Boolean)
+              .map((type) => (
+                <span key={type} className="tag tag--neutral">
+                  {type}
+                </span>
+              ))}
         </div>
 
         <section aria-label="Amenities" className="space-detail__section">

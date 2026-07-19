@@ -11,20 +11,20 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
       <button
         type="button"
         className="view-toggle__button"
-        aria-pressed={view === 'map'}
-        data-pressed={view === 'map'}
-        onClick={() => onChange('map')}
-      >
-        Map
-      </button>
-      <button
-        type="button"
-        className="view-toggle__button"
         aria-pressed={view === 'list'}
         data-pressed={view === 'list'}
         onClick={() => onChange('list')}
       >
         List
+      </button>
+      <button
+        type="button"
+        className="view-toggle__button"
+        aria-pressed={view === 'map'}
+        data-pressed={view === 'map'}
+        onClick={() => onChange('map')}
+      >
+        Map
       </button>
     </div>
   )

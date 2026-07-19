@@ -8,14 +8,28 @@ interface MobileSheetProps {
   tone: 'indoor' | 'outdoor'
   /* Plays the exit animation; the parent unmounts after it finishes. */
   closing?: boolean
+  /* Collapsed to just the header bar (e.g. after "view on map"). */
+  peeked?: boolean
+  /* Tapping the cap while peeked calls this to expand back to full. */
+  onExpand?: () => void
 }
 
 // Positioning shell only — the child (SpaceDetail) owns dialog role, focus, and Escape handling.
-export function MobileSheet({ children, onBackdropClick, tone, closing = false }: MobileSheetProps) {
+export function MobileSheet({
+  children,
+  onBackdropClick,
+  tone,
+  closing = false,
+  peeked = false,
+  onExpand,
+}: MobileSheetProps) {
   const [height, setHeight] = useState(() =>
     typeof window === 'undefined' ? 0 : Math.round(window.innerHeight * 0.55),
   )
+  const [peekHeight, setPeekHeight] = useState<number | null>(null)
   const dragging = useRef(false)
+  const capRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const clampHeight = (value: number) => {
@@ -44,6 +58,19 @@ export function MobileSheet({ children, onBackdropClick, tone, closing = false }
     }
   }, [])
 
+  // Measure the colored header bar (rendered by the child SpaceDetail)
+  // so the peeked height matches it exactly — no hardcoded constant,
+  // so long space names that wrap to two lines still fit.
+  useEffect(() => {
+    const header = contentRef.current?.querySelector<HTMLElement>('.space-detail__header')
+    if (!header) return
+    const publish = () => setPeekHeight((capRef.current?.offsetHeight ?? 0) + header.offsetHeight)
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
       className={`mobile-sheet-backdrop${closing ? ' mobile-sheet-backdrop--closing' : ''}`}
@@ -51,20 +78,34 @@ export function MobileSheet({ children, onBackdropClick, tone, closing = false }
     >
       <div
         className={`mobile-sheet mobile-sheet--${tone}${closing ? ' mobile-sheet--closing' : ''}`}
+        data-peeked={peeked}
         onClick={(e) => e.stopPropagation()}
-        style={{ height: `${height}px` }}
+        style={{
+          height: peeked && peekHeight ? `${peekHeight}px` : `${height}px`,
+          // Free-drag tracking must follow the pointer 1:1 — suppress
+          // the CSS height transition while actively dragging so it
+          // only plays for the peek toggle.
+          transition: dragging.current ? 'none' : undefined,
+        }}
       >
         <div
+          ref={capRef}
           className="mobile-sheet__cap"
-          aria-hidden="true"
+          role={peeked ? 'button' : undefined}
+          aria-label={peeked ? 'Expand details' : undefined}
+          aria-hidden={peeked ? undefined : true}
+          onClick={peeked ? onExpand : undefined}
           onPointerDown={(event) => {
+            if (peeked) return
             dragging.current = true
             event.currentTarget.setPointerCapture(event.pointerId)
           }}
         >
           <div className="mobile-sheet__handle" />
         </div>
-        {children}
+        <div ref={contentRef} className="mobile-sheet__content">
+          {children}
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AppHeader } from './components/AppHeader'
 import { MapView } from './components/MapView'
 import { MobileSheet } from './components/MobileSheet'
@@ -20,15 +20,34 @@ function App() {
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
   const [mobileView, setMobileView] = useState<MobileView>('map')
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [sheetPeeked, setSheetPeeked] = useState(false)
+  const [focusToken, setFocusToken] = useState(0)
+  const [resetToken, setResetToken] = useState(0)
 
   const selected = spaces.find((space) => space.id === filters.space) ?? null
 
   // Linger past close/switch so the exit animations can play.
   const sheet = useLingering(isMobile ? selected : null, 340)
-  const list = useLingering(isMobile && mobileView === 'list' ? ('list' as const) : null, 200)
+  const list = useLingering(isMobile && mobileView === 'list' ? ('list' as const) : null, 240)
+
+  // A fresh selection always starts with the sheet fully expanded.
+  useEffect(() => {
+    setSheetPeeked(false)
+  }, [filters.space])
 
   const handleSelect = (id: string) => update({ space: id }, { push: true })
   const handleDeselect = () => update({ space: null }, { push: true })
+
+  const handleReset = () => {
+    update({ borough: [], type: [], ada: [], amenity: [], q: '', space: null }, { push: true })
+    setResetToken((t) => t + 1)
+  }
+
+  const handleViewOnMap = () => {
+    setMobileView('map')
+    setSheetPeeked(true)
+    setFocusToken((t) => t + 1)
+  }
 
   return (
     <div className="app">
@@ -42,6 +61,10 @@ function App() {
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onHover={setHoveredId}
+          focusToken={focusToken}
+          resetToken={resetToken}
+          isMobile={isMobile}
+          sheetPeeked={sheetPeeked}
         />
       </main>
 
@@ -54,6 +77,7 @@ function App() {
           hoveredId={hoveredId}
           onSelect={handleSelect}
           onHover={setHoveredId}
+          onReset={handleReset}
         />
       )}
 
@@ -66,7 +90,7 @@ function App() {
       {isMobile && (
         <>
           <header className="mobile-topbar">
-            <AppHeader filters={filters} update={update} resultCount={filteredSpaces.length} />
+            <AppHeader filters={filters} update={update} resultCount={filteredSpaces.length} onReset={handleReset} />
           </header>
 
           {list.shown && (
@@ -78,6 +102,7 @@ function App() {
                 onSelect={handleSelect}
                 onHover={setHoveredId}
                 onEmptySpaceClick={() => setMobileView('map')}
+                closing={list.closing}
                 className={`mobile-list${list.closing ? ' mobile-list--closing' : ''}`}
               />
             </nav>
@@ -91,13 +116,11 @@ function App() {
             <MobileSheet
               tone={sheet.shown.indoor ? 'indoor' : 'outdoor'}
               closing={sheet.closing}
+              peeked={sheetPeeked}
+              onExpand={() => setSheetPeeked(false)}
               onBackdropClick={handleDeselect}
             >
-              <SpaceDetail
-                space={sheet.shown}
-                onClose={handleDeselect}
-                onViewOnMap={() => setMobileView('map')}
-              />
+              <SpaceDetail space={sheet.shown} onClose={handleDeselect} onViewOnMap={handleViewOnMap} />
             </MobileSheet>
           )}
         </>

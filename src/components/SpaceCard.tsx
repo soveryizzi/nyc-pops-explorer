@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { PopsSpace } from '../lib/resolvers'
 
 interface SpaceCardProps {
@@ -6,15 +7,21 @@ interface SpaceCardProps {
   hovered: boolean
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
+  /* Plays the fast reversed-stagger exit animation (set by ResultList
+     while its parent list is closing). */
+  closing?: boolean
+  style?: CSSProperties
 }
 
-export function SpaceCard({ space, selected, hovered, onSelect, onHover }: SpaceCardProps) {
+export function SpaceCard({ space, selected, hovered, onSelect, onHover, closing, style }: SpaceCardProps) {
   return (
     <button
       type="button"
       className="space-card"
       data-selected={selected}
       data-hovered={hovered}
+      data-closing={closing}
+      style={style}
       onClick={() => onSelect(space.id)}
       onMouseEnter={() => onHover(space.id)}
       onMouseLeave={() => onHover(null)}

@@ -12,11 +12,37 @@ interface MapViewProps {
   onSelect: (id: string) => void
   onDeselect: () => void
   onHover: (id: string | null) => void
+  /* Bump to force a re-center on the current selection even when
+     selectedId itself hasn't changed (e.g. "view on map" while a
+     space is already selected). */
+  focusToken?: number
+  /* Bump to fly back to the default NYC view (e.g. the logo reset). */
+  resetToken?: number
+  /* Whether the mobile top bar / bottom sheet chrome should be
+     treated as obstructing the viewport when centering a pin. */
+  isMobile?: boolean
+  /* Mobile bottom sheet is in its collapsed "peek" state — leaves
+     most of the screen free, but the peek bar still needs padding. */
+  sheetPeeked?: boolean
 }
 
-export function MapView({ spaces, selectedId, hoveredId, onSelect, onDeselect, onHover }: MapViewProps) {
+const PEEK_BAR_HEIGHT = 130
+
+export function MapView({
+  spaces,
+  selectedId,
+  hoveredId,
+  onSelect,
+  onDeselect,
+  onHover,
+  focusToken,
+  resetToken,
+  isMobile,
+  sheetPeeked,
+}: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
+  const selectedCoords = selectedId ? spaces.find((s) => s.id === selectedId)?.coordinates ?? null : null
 
   useEffect(() => {
     const container = mapRef.current?.getContainer()
@@ -29,15 +55,32 @@ export function MapView({ spaces, selectedId, hoveredId, onSelect, onDeselect, o
   }, [mappable])
 
   useEffect(() => {
-    if (!selectedId) return
-    const selectedSpace = spaces.find((space) => space.id === selectedId)
-    if (!selectedSpace?.coordinates) return
+    if (!selectedCoords) return
+    const topbarHeight = isMobile
+      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-header-height')) || 0
+      : 0
     mapRef.current?.flyTo({
-      center: [selectedSpace.coordinates.lng, selectedSpace.coordinates.lat],
+      center: [selectedCoords.lng, selectedCoords.lat],
       zoom: 14,
       duration: 800,
+      padding: {
+        top: topbarHeight + 16,
+        bottom: isMobile && sheetPeeked ? PEEK_BAR_HEIGHT : 0,
+        left: 0,
+        right: 0,
+      },
     })
-  }, [selectedId, spaces])
+  }, [selectedCoords, focusToken, isMobile, sheetPeeked])
+
+  useEffect(() => {
+    if (!resetToken) return
+    mapRef.current?.flyTo({
+      center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
+      zoom: INITIAL_VIEW_STATE.zoom,
+      duration: 800,
+      padding: { top: 0, bottom: 0, left: 0, right: 0 },
+    })
+  }, [resetToken])
 
   return (
     <Map

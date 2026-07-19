@@ -11,12 +11,13 @@ interface SidebarProps {
   hoveredId: string | null
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
+  onReset: () => void
 }
 
-export function Sidebar({ spaces, filters, update, selectedId, hoveredId, onSelect, onHover }: SidebarProps) {
+export function Sidebar({ spaces, filters, update, selectedId, hoveredId, onSelect, onHover, onReset }: SidebarProps) {
   return (
     <nav className="sidebar" aria-label="POPS search and results">
-      <AppHeader filters={filters} update={update} resultCount={spaces.length} />
+      <AppHeader filters={filters} update={update} resultCount={spaces.length} onReset={onReset} />
       <ResultList
         spaces={spaces}
         selectedId={selectedId}

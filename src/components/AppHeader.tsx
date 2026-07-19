@@ -8,13 +8,22 @@ interface AppHeaderProps {
   filters: UseUrlStateResult['filters']
   update: UseUrlStateResult['update']
   resultCount: number
+  /* Clears filters/search/selection AND recenters the map — owned by
+     the parent since AppHeader has no map reference of its own. */
+  onReset: () => void
 }
 
-export function AppHeader({ filters, update, resultCount }: AppHeaderProps) {
+export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const activeCount = countActiveFilters(filters)
+
+  const handleTitleClick = () => {
+    setSearchOpen(false)
+    setFiltersOpen(false)
+    onReset()
+  }
 
   // The result lists scroll underneath this header, so they need its
   // height (which changes as panels open/close) to pad and position
@@ -36,7 +45,14 @@ export function AppHeader({ filters, update, resultCount }: AppHeaderProps) {
       <div className="app-header__title-row">
         <div className="app-header__titles">
           <h1 className="app-header__title">
-            NYC <span className="app-header__accent">POPS</span>
+            <button
+              type="button"
+              className="app-header__title-button"
+              aria-label="NYC POPS — reset filters, search, and map view"
+              onClick={handleTitleClick}
+            >
+              NYC <span className="app-header__accent">POPS</span>
+            </button>
           </h1>
           <p className="app-header__subtitle">privately owned public spaces</p>
         </div>
