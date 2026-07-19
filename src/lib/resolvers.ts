@@ -184,8 +184,8 @@ export function matchesSearch(record: RawPopsRecord, query: string): boolean {
 }
 
 export function googleMapsUrl(record: RawPopsRecord): string {
-  const query = `${resolveName(record)}, ${resolveAddress(record)}, NYC`
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+  const destination = `${resolveName(record)}, ${resolveAddress(record)}, NYC`
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`
 }
 
 export interface PopsSpace {

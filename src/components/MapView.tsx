@@ -28,6 +28,17 @@ export function MapView({ spaces, selectedId, hoveredId, onSelect, onDeselect, o
     })
   }, [mappable])
 
+  useEffect(() => {
+    if (!selectedId) return
+    const selectedSpace = spaces.find((space) => space.id === selectedId)
+    if (!selectedSpace?.coordinates) return
+    mapRef.current?.flyTo({
+      center: [selectedSpace.coordinates.lng, selectedSpace.coordinates.lat],
+      zoom: 14,
+      duration: 800,
+    })
+  }, [selectedId, spaces])
+
   return (
     <Map
       ref={mapRef}

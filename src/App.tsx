@@ -77,6 +77,7 @@ function App() {
                 hoveredId={hoveredId}
                 onSelect={handleSelect}
                 onHover={setHoveredId}
+                onEmptySpaceClick={() => setMobileView('map')}
                 className={`mobile-list${list.closing ? ' mobile-list--closing' : ''}`}
               />
             </nav>
@@ -92,7 +93,11 @@ function App() {
               closing={sheet.closing}
               onBackdropClick={handleDeselect}
             >
-              <SpaceDetail space={sheet.shown} onClose={handleDeselect} />
+              <SpaceDetail
+                space={sheet.shown}
+                onClose={handleDeselect}
+                onViewOnMap={() => setMobileView('map')}
+              />
             </MobileSheet>
           )}
         </>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type MouseEvent } from 'react'
 import type { PopsSpace } from '../lib/resolvers'
 import { SpaceCard } from './SpaceCard'
 
@@ -8,11 +8,26 @@ interface ResultListProps {
   hoveredId: string | null
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
+  onEmptySpaceClick?: () => void
   className?: string
 }
 
-export function ResultList({ spaces, selectedId, hoveredId, onSelect, onHover, className }: ResultListProps) {
+export function ResultList({
+  spaces,
+  selectedId,
+  hoveredId,
+  onSelect,
+  onHover,
+  onEmptySpaceClick,
+  className,
+}: ResultListProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const handleContainerClick = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as Element
+    if (target.closest('.space-card')) return
+    onEmptySpaceClick?.()
+  }
 
   // Bring the selected card to the top of the list (just below the
   // header, via the container's scroll-padding-top) — selection can
@@ -49,7 +64,7 @@ export function ResultList({ spaces, selectedId, hoveredId, onSelect, onHover, c
 
   if (spaces.length === 0) {
     return (
-      <div ref={containerRef} className={className}>
+      <div ref={containerRef} className={className} onClick={handleContainerClick}>
         <div className="result-list__empty" role="status">
           <p className="result-list__empty-title">No spaces match</p>
           <p className="result-list__empty-hint">Try removing a filter or changing your search.</p>
@@ -59,7 +74,7 @@ export function ResultList({ spaces, selectedId, hoveredId, onSelect, onHover, c
   }
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={className} onClick={handleContainerClick}>
       <ul className="result-list__items">
         {spaces.map((space) => (
           <li key={space.id}>

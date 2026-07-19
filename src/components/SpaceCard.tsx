@@ -43,7 +43,16 @@ export function SpaceCard({ space, selected, hovered, onSelect, onHover }: Space
           <span className={`tag tag--${space.indoor ? 'indoor' : 'outdoor'}`}>
             {space.indoor ? 'Indoor' : 'Outdoor'}
           </span>
-          {space.spaceType && <span className="tag tag--neutral">{space.spaceType}</span>}
+          {space.spaceType &&
+            space.spaceType
+              .split(/[;,]/)
+              .map((type) => type.trim())
+              .filter(Boolean)
+              .map((type) => (
+                <span key={type} className="tag tag--neutral">
+                  {type}
+                </span>
+              ))}
         </span>
       </span>
     </button>
