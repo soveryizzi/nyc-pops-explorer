@@ -470,7 +470,10 @@ a:focus-visible {
 }
 
 /* Exit starts from the card's resting look (not slide-in's 0%), since
-   the card is already fully visible when closing begins. */
+   the card is already fully visible when closing begins. -28px (vs.
+   slide-in's -16px) so the motion reads clearly at this short a
+   duration — 16px was getting lost, especially once the (now-removed)
+   competing container fade was masking it too. */
 @keyframes card-slide-out {
   from {
     opacity: 1;
@@ -478,7 +481,7 @@ a:focus-visible {
   }
   to {
     opacity: 0;
-    transform: translateX(-16px);
+    transform: translateX(-28px);
   }
 }
 
@@ -505,7 +508,7 @@ a:focus-visible {
 }
 
 .space-card[data-closing='true'] {
-  animation: card-slide-out 0.13s var(--motion-ease) forwards;
+  animation: card-slide-out 0.16s var(--motion-ease) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -676,12 +679,15 @@ a:focus-visible {
   animation: list-slide-in 0.24s var(--motion-ease-spring);
 }
 
-.mobile-list--closing {
-  /* Just a fade — the per-card reversed stagger (see .space-card)
-     carries the actual exit motion, so this doesn't fight it with a
-     second, competing direction of travel. */
-  animation: list-slide-out 0.22s var(--motion-ease) forwards;
-}
+/* No container-level exit animation: the per-card reversed stagger
+   (see .space-card[data-closing]) is the only motion during close.
+   A previous version faded the whole container over 220ms with no
+   delay, which finished (and hid everything) right as the later
+   individual card animations were only just starting — the two
+   fades canceled each other out and it read as a plain fade with
+   no visible slide. The backdrop's own translucent tint is subtle
+   enough that its abrupt removal at unmount isn't noticeable once
+   the cards have already animated away. */
 
 @keyframes list-slide-in {
   from {
@@ -690,19 +696,12 @@ a:focus-visible {
   }
 }
 
-@keyframes list-slide-out {
-  to {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mobile-sheet,
   .mobile-sheet--closing,
   .mobile-sheet-backdrop,
   .mobile-sheet-backdrop--closing,
-  .mobile-list,
-  .mobile-list--closing {
+  .mobile-list {
     animation: none;
   }
 }

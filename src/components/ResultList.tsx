@@ -16,11 +16,14 @@ interface ResultListProps {
 }
 
 // Entrance files in top-to-bottom; exit reverses (bottom leaves first)
-// and stays short so closing the list never feels like a wait.
+// and stays short so closing the list never feels like a wait. Worst
+// case (EXIT_STEP_CAP * EXIT_STEP_MS + the card's own 160ms exit
+// duration) must stay under the list's unmount lingering window in
+// App.tsx (240ms) or the last card gets cut off mid-animation.
 const ENTRANCE_STEP_MS = 28
 const ENTRANCE_STEP_CAP = 15
-const EXIT_STEP_MS = 12
-const EXIT_STEP_CAP = 8
+const EXIT_STEP_MS = 10
+const EXIT_STEP_CAP = 6
 
 export function ResultList({
   spaces,
