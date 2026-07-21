@@ -1,7 +1,12 @@
 import type { RefObject } from 'react'
 import { AMENITIES } from '../lib/constants'
 import { googleMapsUrl, type PopsSpace } from '../lib/resolvers'
+import { submissionsEnabled } from '../lib/submissions'
+import { useApprovedSubmissions } from '../hooks/useApprovedSubmissions'
 import { useDialogClose } from '../hooks/useDialogClose'
+import { SuggestUpdate } from './SuggestUpdate'
+
+const MONTH_YEAR = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' })
 
 interface SpaceDetailProps {
   space: PopsSpace
@@ -18,6 +23,8 @@ const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
 
 export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
   const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(onClose)
+  const approved = useApprovedSubmissions(space.id)
+  const latestHoursUpdate = approved.hours[0]
 
   return (
     <div
@@ -89,6 +96,12 @@ export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
           <p className="space-detail__hours-caveat">
             ⚠️ This data may be out of date — confirm hours before visiting.
           </p>
+          {latestHoursUpdate && (
+            <p className="space-detail__hours-reported">
+              Visitor update ({MONTH_YEAR.format(new Date(latestHoursUpdate.createdAt))}):{' '}
+              {latestHoursUpdate.hoursText}
+            </p>
+          )}
           {space.apopsUrl && (
             <a
               href={space.apopsUrl}
@@ -108,6 +121,19 @@ export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
           </p>
           {space.ada.subtitle && <p className="space-detail__ada-subtitle">{space.ada.subtitle}</p>}
         </section>
+
+        {approved.photos.length > 0 && (
+          <section aria-label="Visitor photos" className="space-detail__section">
+            <h3 className="space-detail__section-title">Photos</h3>
+            <div className="photo-grid">
+              {approved.photos.map((photo) => (
+                <img key={photo.id} src={photo.url} alt={`${space.name} — visitor photo`} loading="lazy" />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {submissionsEnabled && <SuggestUpdate spaceId={space.id} />}
 
       </div>
     </div>

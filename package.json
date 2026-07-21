@@ -12,6 +12,7 @@
     "fetch-data": "tsx scripts/fetch-data.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.7",
     "maplibre-gl": "^5.24.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
