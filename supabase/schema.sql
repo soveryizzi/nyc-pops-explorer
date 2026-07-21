@@ -1,15 +1,27 @@
 -- NYC POPS Explorer — visitor submissions (photos + corrected hours).
 --
--- Setup: create a Supabase project, then paste this whole file into the
--- SQL Editor (Dashboard → SQL Editor → New query) and run it once.
+-- Setup (fresh project): create a Supabase project, then paste this
+-- whole file into the SQL Editor (Dashboard → SQL Editor → New query)
+-- and run it once.
+--
+-- Already have the table from before the 'plate' kind existed? Run
+-- supabase/migrations/001_add_plate_kind.sql instead — this file
+-- reflects the full current state, not an incremental diff.
+--
 -- Moderation happens in the dashboard: Table Editor → submissions →
 -- change a row's status to 'approved' (or 'rejected'). Only approved
 -- rows are ever visible to the app.
+--
+-- 'plate' rows: a visitor's photo of the legally-required POPS hours
+-- plate, OCR'd client-side (see src/lib/ocr.ts) — carries both
+-- hours_text and photo_path so a moderator sees the claimed hours
+-- right next to the photo they were read from, not as two separate
+-- rows to correlate by hand.
 
 create table public.submissions (
   id uuid primary key default gen_random_uuid(),
   space_id text not null,
-  kind text not null check (kind in ('photo', 'hours')),
+  kind text not null check (kind in ('photo', 'hours', 'plate')),
   hours_text text,
   photo_path text,
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
@@ -17,6 +29,7 @@ create table public.submissions (
   check (
     (kind = 'hours' and hours_text is not null)
     or (kind = 'photo' and photo_path is not null)
+    or (kind = 'plate' and hours_text is not null and photo_path is not null)
   )
 );
 

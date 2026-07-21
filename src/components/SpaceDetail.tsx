@@ -1,9 +1,10 @@
-import type { RefObject } from 'react'
+import { useState, type RefObject } from 'react'
 import { AMENITIES } from '../lib/constants'
 import { googleMapsUrl, type PopsSpace } from '../lib/resolvers'
 import { submissionsEnabled } from '../lib/submissions'
 import { useApprovedSubmissions } from '../hooks/useApprovedSubmissions'
 import { useDialogClose } from '../hooks/useDialogClose'
+import { PhotoLightbox } from './PhotoLightbox'
 import { SuggestUpdate } from './SuggestUpdate'
 
 const MONTH_YEAR = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' })
@@ -22,17 +23,31 @@ const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
 }
 
 export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
-  const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(onClose)
   const approved = useApprovedSubmissions(space.id)
   const latestHoursUpdate = approved.hours[0]
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
+  // The lightbox is a second, independent dialog that can be open at
+  // the same time as this one. useDialogClose's Escape handling is
+  // unconditional (no focus check, unlike its Tab-trap), so without
+  // this it would close *this* dialog too the moment the lightbox's
+  // own Escape handler closes the lightbox. Swapping in a no-op while
+  // the lightbox is open is enough — Tab doesn't need the same
+  // treatment, since its handler only acts when the outer dialog's
+  // own boundary elements are actually focused, which they can't be
+  // while focus is inside the lightbox.
+  const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(
+    lightboxIndex === null ? onClose : () => {},
+  )
 
   return (
-    <div
-      ref={containerRef as RefObject<HTMLDivElement>}
-      role="dialog"
-      aria-label={space.name}
-      className="space-detail"
-    >
+    <>
+      <div
+        ref={containerRef as RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-label={space.name}
+        className="space-detail"
+      >
       <div className={`space-detail__header space-detail__header--${space.indoor ? 'indoor' : 'outdoor'}`}>
         <div>
           <h2 className="space-detail__name">{space.name}</h2>
@@ -97,10 +112,12 @@ export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
             ⚠️ This data may be out of date — confirm hours before visiting.
           </p>
           {latestHoursUpdate && (
-            <p className="space-detail__hours-reported">
-              Visitor update ({MONTH_YEAR.format(new Date(latestHoursUpdate.createdAt))}):{' '}
-              {latestHoursUpdate.hoursText}
-            </p>
+            <div className="space-detail__hours-reported">
+              <span className="space-detail__hours-reported-label">
+                Last updated: {MONTH_YEAR.format(new Date(latestHoursUpdate.createdAt))}
+              </span>
+              <p className="space-detail__hours-reported-text">{latestHoursUpdate.hoursText}</p>
+            </div>
           )}
           {space.apopsUrl && (
             <a
@@ -126,8 +143,15 @@ export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
           <section aria-label="Visitor photos" className="space-detail__section">
             <h3 className="space-detail__section-title">Photos</h3>
             <div className="photo-grid">
-              {approved.photos.map((photo) => (
-                <img key={photo.id} src={photo.url} alt={`${space.name} — visitor photo`} loading="lazy" />
+              {approved.photos.map((photo, index) => (
+                <button
+                  key={photo.id}
+                  type="button"
+                  className="photo-grid__item"
+                  onClick={() => setLightboxIndex(index)}
+                >
+                  <img src={photo.url} alt={`${space.name} — visitor photo`} loading="lazy" />
+                </button>
               ))}
             </div>
           </section>
@@ -137,5 +161,19 @@ export function SpaceDetail({ space, onClose, onViewOnMap }: SpaceDetailProps) {
 
       </div>
     </div>
+
+    {/* Sibling, not nested inside the dialog above — so this dialog's
+        own Tab-trap (scoped to containerRef) never picks up the
+        lightbox's buttons as descendants. See the useDialogClose
+        call above for how Escape is kept from leaking between them. */}
+    {lightboxIndex !== null && (
+      <PhotoLightbox
+        photos={approved.photos}
+        startIndex={lightboxIndex}
+        spaceName={space.name}
+        onClose={() => setLightboxIndex(null)}
+      />
+    )}
+    </>
   )
 }

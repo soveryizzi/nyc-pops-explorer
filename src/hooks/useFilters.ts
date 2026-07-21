@@ -30,5 +30,11 @@ export function useFilters(spaces: PopsSpace[], filters: FilterState): PopsSpace
 }
 
 export function countActiveFilters(filters: FilterState): number {
-  return filters.borough.length + filters.type.length + filters.ada.length + filters.amenity.length
+  return (
+    filters.borough.length +
+    filters.type.length +
+    filters.ada.length +
+    filters.amenity.length +
+    (filters.q ? 1 : 0)
+  )
 }

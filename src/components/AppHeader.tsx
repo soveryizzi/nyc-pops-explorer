@@ -117,7 +117,7 @@ export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderPr
             <button
               type="button"
               className="app-header__clear"
-              onClick={() => update({ borough: [], type: [], ada: [], amenity: [] }, { push: true })}
+              onClick={() => update({ borough: [], type: [], ada: [], amenity: [], q: '' }, { push: true })}
             >
               Clear filters
             </button>
