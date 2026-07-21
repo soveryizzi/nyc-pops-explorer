@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Map, { AttributionControl, Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from '../lib/constants'
@@ -43,6 +43,23 @@ export function MapView({
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
   const selectedCoords = selectedId ? spaces.find((s) => s.id === selectedId)?.coordinates ?? null : null
+
+  // "Highlight on map" should visibly highlight the pin, not just
+  // recenter on it (recentering alone already happens on selection,
+  // so it wouldn't read as a distinct action). Pulses the selected
+  // marker briefly, but only when focusToken actually changes while
+  // a space is already selected — not on page load, and not merely
+  // because a *different* marker just became selected.
+  const [pulsingId, setPulsingId] = useState<string | null>(null)
+  const prevFocusToken = useRef(focusToken)
+  useEffect(() => {
+    const changed = focusToken !== prevFocusToken.current
+    prevFocusToken.current = focusToken
+    if (!changed || !selectedId) return
+    setPulsingId(selectedId)
+    const timer = window.setTimeout(() => setPulsingId(null), 900)
+    return () => window.clearTimeout(timer)
+  }, [focusToken, selectedId])
 
   useEffect(() => {
     const container = mapRef.current?.getContainer()
@@ -108,6 +125,7 @@ export function MapView({
             indoor={space.indoor}
             selected={space.id === selectedId}
             hovered={space.id === hoveredId}
+            pulsing={space.id === pulsingId}
             label={space.name}
             onClick={() => onSelect(space.id)}
             onHover={(hovering) => onHover(hovering ? space.id : null)}

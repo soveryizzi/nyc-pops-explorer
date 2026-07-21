@@ -188,6 +188,14 @@ export function googleMapsUrl(record: RawPopsRecord): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`
 }
 
+// Capital Planning's facilities map takes a #zoom/lat/lng hash — this
+// opens it already centered on the space instead of a blank city-wide
+// view. Returns null when there's no coordinate to center on.
+export function nycPlanningUrl(coordinates: Coordinates | null): string | null {
+  if (!coordinates) return null
+  return `https://capitalplanning.nyc.gov/map/facilities#17/${coordinates.lat}/${coordinates.lng}`
+}
+
 export interface PopsSpace {
   id: string
   name: string

@@ -43,9 +43,15 @@ function App() {
     setResetToken((t) => t + 1)
   }
 
-  const handleViewOnMap = () => {
-    setMobileView('map')
-    setSheetPeeked(true)
+  // "Highlight on map" — recenters (MapView) and briefly pulses the
+  // pin. On mobile this also switches to the map and collapses the
+  // sheet to a peek bar; on desktop the map is already visible
+  // alongside the detail card, so there's no sheet/view to touch.
+  const handleHighlightMap = () => {
+    if (isMobile) {
+      setMobileView('map')
+      setSheetPeeked(true)
+    }
     setFocusToken((t) => t + 1)
   }
 
@@ -83,7 +89,7 @@ function App() {
 
       {!isMobile && selected && (
         <div className="detail-card">
-          <SpaceDetail space={selected} onClose={handleDeselect} />
+          <SpaceDetail space={selected} onClose={handleDeselect} onHighlightMap={handleHighlightMap} />
         </div>
       )}
 
@@ -120,7 +126,7 @@ function App() {
               onExpand={() => setSheetPeeked(false)}
               onBackdropClick={handleDeselect}
             >
-              <SpaceDetail space={sheet.shown} onClose={handleDeselect} onViewOnMap={handleViewOnMap} />
+              <SpaceDetail space={sheet.shown} onClose={handleDeselect} onHighlightMap={handleHighlightMap} />
             </MobileSheet>
           )}
         </>

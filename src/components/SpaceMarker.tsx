@@ -2,12 +2,15 @@ interface SpaceMarkerProps {
   indoor: boolean
   selected: boolean
   hovered: boolean
+  /* Briefly highlights the pin — set by MapView for ~900ms after
+     "Highlight on map" is used, not on plain selection. */
+  pulsing?: boolean
   label: string
   onClick: () => void
   onHover: (hovering: boolean) => void
 }
 
-export function SpaceMarker({ indoor, selected, hovered, label, onClick, onHover }: SpaceMarkerProps) {
+export function SpaceMarker({ indoor, selected, hovered, pulsing, label, onClick, onHover }: SpaceMarkerProps) {
   const size = selected ? 32 : 20
   const fill = selected ? 'var(--color-primary-dark)' : indoor ? 'var(--color-indoor)' : 'var(--color-outdoor)'
 
@@ -18,6 +21,7 @@ export function SpaceMarker({ indoor, selected, hovered, label, onClick, onHover
       aria-label={label}
       aria-pressed={selected}
       data-hovered={hovered}
+      data-pulsing={pulsing}
       onClick={(e) => {
         e.stopPropagation()
         onClick()

@@ -29,11 +29,22 @@
 .search-bar__input:focus-visible,
 .search-bar__clear:focus-visible,
 .space-detail__close:focus-visible,
-.space-detail__map-action:focus-visible,
+.space-detail__address:focus-visible,
+.space-detail__highlight:focus-visible,
+.accordion__trigger:focus-visible,
 .app-header__clear:focus-visible,
 .app-header__done:focus-visible,
 .app-header__title-button:focus-visible,
 a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The add-tile's real <input type="file"> is visually hidden (sr-only)
+   inside its <label> — keyboard focus lands on the input, not the
+   label, so :focus-within (not :focus-visible) is what needs to show
+   the ring on the visible tile. */
+.photo-grid__add:focus-within {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -592,6 +603,30 @@ a:focus-visible {
   z-index: 5;
 }
 
+/* "Highlight on map" — a brief ring pulse so the action reads as
+   distinct from the recentering that already happens on selection. */
+.space-marker[data-pulsing='true'] {
+  animation: marker-pulse 0.9s var(--motion-ease);
+}
+
+@keyframes marker-pulse {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(44, 78, 56, 0.5));
+  }
+  40% {
+    filter: drop-shadow(0 0 10px rgba(44, 78, 56, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .space-marker[data-pulsing='true'] {
+    animation: none;
+  }
+}
+
 /* Desktop sidebar — transparent column flush to the left edge; the
    green header and each card are the visible surfaces. */
 
@@ -859,10 +894,7 @@ a:focus-visible {
 /* Space detail content (shared by detail-card and mobile-sheet) */
 
 .space-detail__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-2);
+  position: relative;
   padding: var(--space-4);
   color: var(--color-surface);
 }
@@ -876,34 +908,47 @@ a:focus-visible {
 }
 
 .space-detail__name {
-  margin: 0;
+  margin: 0 0 var(--space-1);
   font-family: var(--font-display);
   font-size: var(--type-size-lg);
   font-weight: var(--type-weight-extrabold);
+  padding-right: 40px;
 }
 
-.space-detail__address {
+.space-detail__link-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* "Route me to…" (a real link) and "Highlight on map" (a button that
+   triggers app state, not navigation) share one look so both
+   wayfinding actions read as the same family. */
+.space-detail__address,
+.space-detail__highlight {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
   gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
   color: var(--color-surface);
+  font-family: var(--font-sans);
   font-size: var(--type-size-sm);
   text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .space-detail__address .material-icons {
   font-size: var(--type-size-base);
 }
 
-.space-detail__header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-shrink: 0;
-}
-
-.space-detail__close,
-.space-detail__map-action {
+.space-detail__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
   flex-shrink: 0;
   width: 28px;
   height: 28px;
@@ -911,26 +956,12 @@ a:focus-visible {
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.25);
   color: var(--color-surface);
+  font-size: var(--type-size-base);
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease);
 }
 
-.space-detail__close {
-  font-size: var(--type-size-base);
-}
-
-.space-detail__map-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.space-detail__map-action .material-icons {
-  font-size: 16px;
-}
-
-.space-detail__close:hover,
-.space-detail__map-action:hover {
+.space-detail__close:hover {
   background: rgba(255, 255, 255, 0.4);
 }
 
@@ -947,68 +978,155 @@ a:focus-visible {
   gap: var(--space-1);
 }
 
-.space-detail__section-title {
-  margin: 0 0 var(--space-2);
+/* ---- accordion ---- */
+/* Same grid-rows 0fr/1fr collapse used by the header's search/filter
+   panels. Each section is its own rounded, tinted card — consistent
+   with the rest of the app, where grouped things (space-cards in the
+   list) are independent floating shapes rather than one continuous
+   list with hairline dividers. */
+
+.space-detail--outdoor { --section-tint: color-mix(in srgb, var(--color-outdoor) 9%, var(--color-surface)); }
+.space-detail--indoor { --section-tint: color-mix(in srgb, var(--color-indoor) 9%, var(--color-surface)); }
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.accordion__section {
+  border-radius: var(--radius-md);
+  background: var(--section-tint);
+  overflow: hidden;
+}
+
+.accordion__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: left;
+}
+
+.accordion__trigger-label {
   font-size: var(--type-size-xs);
   font-weight: var(--type-weight-extrabold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--color-ink-soft);
 }
 
-.amenity-checklist {
+.accordion__chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-ink-soft);
+  transition: transform var(--motion-duration-med) var(--motion-ease);
+}
+
+.accordion__trigger[aria-expanded='true'] .accordion__chevron {
+  transform: rotate(180deg);
+}
+
+.accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-duration-med) var(--motion-ease);
+}
+
+.accordion__panel[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+
+.accordion__panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accordion__content {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion__chevron,
+  .accordion__panel {
+    transition: none;
+  }
+}
+
+/* ---- amenities: present-first, absent folded into one line ---- */
+
+.amenity-present {
   list-style: none;
-  margin: 0;
+  margin: 0 0 var(--space-3);
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
-  font-size: var(--type-size-sm);
+  gap: var(--space-2) var(--space-3);
 }
 
-.amenity-checklist__item {
+.amenity-present li {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+  color: var(--color-ink);
+}
+
+.amenity-present li svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.amenity-absent {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--type-size-xs);
+  line-height: 1.6;
   color: var(--color-ink-soft);
 }
 
-.amenity-checklist__item[data-present='true'] {
-  color: var(--color-ink);
+.amenity-absent strong {
+  color: var(--color-ink-soft);
   font-weight: var(--type-weight-semibold);
 }
 
-.amenity-checklist__item[data-present='true'] span:first-child {
-  color: var(--color-primary);
-}
-
-.space-detail__hours {
-  background: var(--color-hours-tint);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-}
-
-.space-detail__hours p {
+.hours-value {
   margin: 0;
+  font-size: var(--type-size-base);
+  color: var(--color-ink);
 }
 
 .space-detail__hours-caveat {
-  margin-top: var(--space-2) !important;
+  margin-top: var(--space-2);
   font-size: var(--type-size-sm);
   color: var(--color-ink-soft);
 }
 
-.space-detail__apops {
-  margin-top: var(--space-3);
+.space-detail__hours-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .space-detail__ada-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-weight: var(--type-weight-extrabold);
   margin: 0;
 }
 
 .space-detail__ada-subtitle {
-  margin: 2px 0 0;
+  margin: 2px 0 0 26px;
   font-size: var(--type-size-sm);
   color: var(--color-ink-soft);
 }
@@ -1016,7 +1134,7 @@ a:focus-visible {
 /* Visitor submissions: approved content + suggestion form */
 
 .space-detail__hours-reported {
-  margin-top: var(--space-3) !important;
+  margin-top: var(--space-3);
   padding-top: var(--space-2);
   border-top: 1px solid var(--color-border);
 }
@@ -1039,8 +1157,49 @@ a:focus-visible {
 
 .photo-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
+}
+
+.photo-grid__add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  aspect-ratio: 4 / 3;
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.photo-grid__add:hover {
+  background: var(--color-surface-mint);
+}
+
+.photo-grid__add svg {
+  width: 20px;
+  height: 20px;
+}
+
+.photo-grid__add span {
+  font-size: 10px;
+  font-weight: var(--type-weight-semibold);
+}
+
+.photo-grid__empty {
+  margin: 0;
+  font-size: var(--type-size-sm);
+  color: var(--color-ink-soft);
+}
+
+.photo-caption {
+  margin: var(--space-2) 0 0;
+  font-size: var(--type-size-xs);
+  color: var(--color-ink-soft);
 }
 
 .photo-grid__item {
@@ -1097,16 +1256,6 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-.suggest-form__file {
-  font-family: var(--font-sans);
-  font-size: var(--type-size-sm);
-  color: var(--color-ink-soft);
-}
-
-.suggest-form__file:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
 
 .suggest-form__submit {
   align-self: flex-start;
