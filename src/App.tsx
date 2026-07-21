@@ -55,6 +55,18 @@ function App() {
     setFocusToken((t) => t + 1)
   }
 
+  // Selecting a card from the mobile list: the list was covering the
+  // map, so the pin needs the same "here it is" treatment as an
+  // explicit highlight — switch to map view and pulse+center it.
+  // (Picking a marker directly needs none of this: the map is already
+  // what's on screen, so a plain re-center is enough — see MapView's
+  // own selectedCoords effect.)
+  const handleSelectFromList = (id: string) => {
+    update({ space: id }, { push: true })
+    setMobileView('map')
+    setFocusToken((t) => t + 1)
+  }
+
   return (
     <div className="app">
       {/* .app-main is explicitly sized — a bare <main> collapses to
@@ -70,7 +82,6 @@ function App() {
           focusToken={focusToken}
           resetToken={resetToken}
           isMobile={isMobile}
-          sheetPeeked={sheetPeeked}
         />
       </main>
 
@@ -105,7 +116,7 @@ function App() {
                 spaces={filteredSpaces}
                 selectedId={filters.space}
                 hoveredId={hoveredId}
-                onSelect={handleSelect}
+                onSelect={handleSelectFromList}
                 onHover={setHoveredId}
                 onEmptySpaceClick={() => setMobileView('map')}
                 closing={list.closing}

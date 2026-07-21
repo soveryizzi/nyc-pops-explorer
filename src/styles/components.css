@@ -385,6 +385,16 @@ a:focus-visible {
   font-weight: var(--type-weight-regular);
 }
 
+/* Overrides the shared 2px-outset focus ring: this input's parent
+   (.app-header__panel-inner) clips overflow flush against the input's
+   own box for the collapse animation, with zero margin to spare — an
+   outward ring gets clipped on the straight edges, leaving only faint
+   rounded-corner fragments visible. Insetting keeps the ring fully
+   inside the already-visible box instead. */
+.search-bar__input:focus-visible {
+  outline-offset: -2px;
+}
+
 .search-bar__clear {
   position: absolute;
   right: var(--space-2);
@@ -818,7 +828,12 @@ a:focus-visible {
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   overflow-y: auto;
   box-shadow: 0 -4px 20px rgba(27, 49, 35, 0.3);
-  animation: sheet-slide-up 0.38s var(--motion-ease-spring);
+  /* A gentler spring than --motion-ease-spring's 1.4 overshoot
+     (scoped here, not changed globally — card entrance and other
+     spots still want the punchier version) — enough bounce to feel
+     alive without the sheet visibly overshooting past its resting
+     position. */
+  animation: sheet-slide-up 0.42s cubic-bezier(0.34, 1.15, 0.64, 1);
   /* Height transitions when toggling peek (the component sets an
      inline transition:none while the cap is actively being dragged,
      so free-drag tracking stays 1:1 and only the peek toggle glides). */
@@ -1096,6 +1111,23 @@ a:focus-visible {
 .amenity-absent strong {
   color: var(--color-ink-soft);
   font-weight: var(--type-weight-semibold);
+}
+
+.amenity-empty {
+  margin: 0;
+}
+
+.amenity-empty__title {
+  margin: 0;
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+  color: var(--color-ink);
+}
+
+.amenity-empty__hint {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-size-xs);
+  color: var(--color-ink-soft);
 }
 
 .hours-value {

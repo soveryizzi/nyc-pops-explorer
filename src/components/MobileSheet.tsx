@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 interface MobileSheetProps {
@@ -70,6 +70,27 @@ export function MobileSheet({
     observer.observe(header)
     return () => observer.disconnect()
   }, [])
+
+  // Publish the sheet's actual current height (peeked or full, dragged
+  // or default) so MapView can pad its centering to keep a selected
+  // pin inside the part of the screen the sheet doesn't cover — reset
+  // to 0 on unmount so a stale value doesn't linger after the sheet
+  // closes and the map goes back to using the full viewport.
+  //
+  // useLayoutEffect, not useEffect: on a fresh selection this sheet
+  // mounts in the same commit as MapView's own selectedCoords change.
+  // MapView and MobileSheet are unrelated siblings, so passive effects
+  // between them have no guaranteed order — MapView's flyTo could run
+  // first and read a stale height. All layout effects in a commit run
+  // before any passive effect, tree position aside, so this guarantees
+  // the CSS var is current before MapView's (passive) effect reads it.
+  const effectiveHeight = peeked && peekHeight ? peekHeight : height
+  useLayoutEffect(() => {
+    document.documentElement.style.setProperty('--mobile-sheet-height', `${effectiveHeight}px`)
+    return () => {
+      document.documentElement.style.setProperty('--mobile-sheet-height', '0px')
+    }
+  }, [effectiveHeight])
 
   return (
     <div

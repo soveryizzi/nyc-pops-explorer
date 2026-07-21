@@ -87,22 +87,31 @@ export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps
 
           <div className="accordion">
             <AccordionSection title="Amenities" defaultOpen>
-              {presentAmenities.length > 0 && (
-                <ul className="amenity-present">
-                  {presentAmenities.map((amenity) => (
-                    <li key={amenity.id}>
-                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M4 10.5l4 4L16 6" />
-                      </svg>
-                      {amenity.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {absentAmenities.length > 0 && (
-                <p className="amenity-absent">
-                  <strong>Not available:</strong> {absentAmenities.map((a) => a.label.toLowerCase()).join(', ')}.
-                </p>
+              {presentAmenities.length > 0 ? (
+                <>
+                  <ul className="amenity-present">
+                    {presentAmenities.map((amenity) => (
+                      <li key={amenity.id}>
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M4 10.5l4 4L16 6" />
+                        </svg>
+                        {amenity.label}
+                      </li>
+                    ))}
+                  </ul>
+                  {absentAmenities.length > 0 && (
+                    <p className="amenity-absent">
+                      <strong>Not available:</strong> {absentAmenities.map((a) => a.label.toLowerCase()).join(', ')}.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="amenity-empty">
+                  <p className="amenity-empty__title">No amenities found here 🙁</p>
+                  <p className="amenity-empty__hint">
+                    This space may have amenities that just aren't listed in the dataset yet.
+                  </p>
+                </div>
               )}
             </AccordionSection>
 

@@ -21,12 +21,7 @@ interface MapViewProps {
   /* Whether the mobile top bar / bottom sheet chrome should be
      treated as obstructing the viewport when centering a pin. */
   isMobile?: boolean
-  /* Mobile bottom sheet is in its collapsed "peek" state — leaves
-     most of the screen free, but the peek bar still needs padding. */
-  sheetPeeked?: boolean
 }
-
-const PEEK_BAR_HEIGHT = 130
 
 export function MapView({
   spaces,
@@ -38,7 +33,6 @@ export function MapView({
   focusToken,
   resetToken,
   isMobile,
-  sheetPeeked,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
@@ -73,21 +67,25 @@ export function MapView({
 
   useEffect(() => {
     if (!selectedCoords) return
-    const topbarHeight = isMobile
-      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-header-height')) || 0
-      : 0
+    const rootStyle = getComputedStyle(document.documentElement)
+    // --mobile-sheet-height is published by MobileSheet with its exact
+    // current on-screen height (peeked or full, default or dragged) —
+    // reads as 0 whenever no sheet is mounted, so this doubles as the
+    // "is anything covering the bottom of the map" check.
+    const topbarHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--app-header-height')) || 0 : 0
+    const sheetHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--mobile-sheet-height')) || 0 : 0
     mapRef.current?.flyTo({
       center: [selectedCoords.lng, selectedCoords.lat],
       zoom: 14,
       duration: 800,
       padding: {
         top: topbarHeight + 16,
-        bottom: isMobile && sheetPeeked ? PEEK_BAR_HEIGHT : 0,
+        bottom: sheetHeight,
         left: 0,
         right: 0,
       },
     })
-  }, [selectedCoords, focusToken, isMobile, sheetPeeked])
+  }, [selectedCoords, focusToken, isMobile])
 
   useEffect(() => {
     if (!resetToken) return
