@@ -30,7 +30,6 @@
 .search-bar__clear:focus-visible,
 .space-detail__close:focus-visible,
 .space-detail__address:focus-visible,
-.space-detail__highlight:focus-visible,
 .accordion__trigger:focus-visible,
 .app-header__clear:focus-visible,
 .app-header__done:focus-visible,
@@ -360,6 +359,11 @@ a:focus-visible {
   color: var(--color-ink);
 }
 
+.space-detail__hours-actions .button {
+  font-size: var(--type-size-sm);
+  padding: var(--space-2) var(--space-5);
+}
+
 /* Search (inside the green header) */
 
 .search-bar {
@@ -685,6 +689,8 @@ a:focus-visible {
   box-shadow: 0 8px 28px rgba(47, 58, 46, 0.25);
   overflow-y: auto;
   z-index: var(--z-detail);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Mobile top bar */
@@ -909,7 +915,9 @@ a:focus-visible {
 /* Space detail content (shared by detail-card and mobile-sheet) */
 
 .space-detail__header {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   padding: var(--space-4);
   color: var(--color-surface);
 }
@@ -930,20 +938,10 @@ a:focus-visible {
   padding-right: 40px;
 }
 
-.space-detail__link-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* "Route me to…" (a real link) and "Highlight on map" (a button that
-   triggers app state, not navigation) share one look so both
-   wayfinding actions read as the same family. */
-.space-detail__address,
-.space-detail__highlight {
+.space-detail__address {
   display: inline-flex;
   align-self: flex-start;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-1);
   padding: 0;
   border: none;
@@ -951,13 +949,14 @@ a:focus-visible {
   color: var(--color-surface);
   font-family: var(--font-sans);
   font-size: var(--type-size-sm);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
   cursor: pointer;
 }
 
 .space-detail__address .material-icons {
   font-size: var(--type-size-base);
+  line-height: 1;
+  margin-top: 1px;
 }
 
 .space-detail__close {
@@ -1109,7 +1108,7 @@ a:focus-visible {
 }
 
 .amenity-absent strong {
-  color: var(--color-ink-soft);
+  color: inherit;
   font-weight: var(--type-weight-semibold);
 }
 
@@ -1117,29 +1116,33 @@ a:focus-visible {
   margin: 0;
 }
 
-.amenity-empty__title {
-  margin: 0;
+.amenity-empty__title,
+.hours-value,
+.space-detail__section-summary,
+.space-detail__ada-label {
+  margin: 0 0 var(--space-2);
   font-size: var(--type-size-sm);
   font-weight: var(--type-weight-semibold);
   color: var(--color-ink);
 }
 
-.amenity-empty__hint {
+.space-detail__ada-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.amenity-empty__hint,
+.space-detail__hours-caveat,
+.space-detail__ada-subtitle,
+.photo-caption {
   margin: var(--space-1) 0 0;
   font-size: var(--type-size-xs);
   color: var(--color-ink-soft);
 }
 
 .hours-value {
-  margin: 0;
-  font-size: var(--type-size-base);
-  color: var(--color-ink);
-}
-
-.space-detail__hours-caveat {
-  margin-top: var(--space-2);
   font-size: var(--type-size-sm);
-  color: var(--color-ink-soft);
 }
 
 .space-detail__hours-actions {
@@ -1149,17 +1152,9 @@ a:focus-visible {
   margin-top: var(--space-4);
 }
 
-.space-detail__ada-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-weight: var(--type-weight-extrabold);
-  margin: 0;
-}
-
 .space-detail__ada-subtitle {
-  margin: 2px 0 0 26px;
-  font-size: var(--type-size-sm);
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-size-xs);
   color: var(--color-ink-soft);
 }
 
@@ -1229,7 +1224,7 @@ a:focus-visible {
 }
 
 .photo-caption {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-1) 0 var(--space-3);
   font-size: var(--type-size-xs);
   color: var(--color-ink-soft);
 }

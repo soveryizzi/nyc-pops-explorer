@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { AppHeader } from './components/AppHeader'
 import { MapView } from './components/MapView'
 import { MobileSheet } from './components/MobileSheet'
@@ -20,7 +20,6 @@ function App() {
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
   const [mobileView, setMobileView] = useState<MobileView>('map')
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [sheetPeeked, setSheetPeeked] = useState(false)
   const [focusToken, setFocusToken] = useState(0)
   const [resetToken, setResetToken] = useState(0)
 
@@ -30,29 +29,12 @@ function App() {
   const sheet = useLingering(isMobile ? selected : null, 340)
   const list = useLingering(isMobile && mobileView === 'list' ? ('list' as const) : null, 240)
 
-  // A fresh selection always starts with the sheet fully expanded.
-  useEffect(() => {
-    setSheetPeeked(false)
-  }, [filters.space])
-
   const handleSelect = (id: string) => update({ space: id }, { push: true })
   const handleDeselect = () => update({ space: null }, { push: true })
 
   const handleReset = () => {
     update({ borough: [], type: [], ada: [], amenity: [], q: '', space: null }, { push: true })
     setResetToken((t) => t + 1)
-  }
-
-  // "Highlight on map" — recenters (MapView) and briefly pulses the
-  // pin. On mobile this also switches to the map and collapses the
-  // sheet to a peek bar; on desktop the map is already visible
-  // alongside the detail card, so there's no sheet/view to touch.
-  const handleHighlightMap = () => {
-    if (isMobile) {
-      setMobileView('map')
-      setSheetPeeked(true)
-    }
-    setFocusToken((t) => t + 1)
   }
 
   // Selecting a card from the mobile list: the list was covering the
@@ -100,7 +82,7 @@ function App() {
 
       {!isMobile && selected && (
         <div className="detail-card">
-          <SpaceDetail space={selected} onClose={handleDeselect} onHighlightMap={handleHighlightMap} />
+          <SpaceDetail space={selected} onClose={handleDeselect} />
         </div>
       )}
 
@@ -133,11 +115,9 @@ function App() {
             <MobileSheet
               tone={sheet.shown.indoor ? 'indoor' : 'outdoor'}
               closing={sheet.closing}
-              peeked={sheetPeeked}
-              onExpand={() => setSheetPeeked(false)}
               onBackdropClick={handleDeselect}
             >
-              <SpaceDetail space={sheet.shown} onClose={handleDeselect} onHighlightMap={handleHighlightMap} />
+              <SpaceDetail space={sheet.shown} onClose={handleDeselect} />
             </MobileSheet>
           )}
         </>

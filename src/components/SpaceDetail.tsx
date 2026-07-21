@@ -12,17 +12,9 @@ const MONTH_YEAR = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'num
 interface SpaceDetailProps {
   space: PopsSpace
   onClose: () => void
-  onHighlightMap?: () => void
 }
 
-const ADA_COLOR: Record<PopsSpace['ada']['status'], string> = {
-  full: 'var(--color-ada-full)',
-  partial: 'var(--color-ada-partial)',
-  none: 'var(--color-ada-none)',
-  unknown: 'var(--color-ada-unknown)',
-}
-
-export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps) {
+export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
   const approved = useApprovedSubmissions(space.id)
   const latestHoursUpdate = approved.hours[0]
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -57,16 +49,18 @@ export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps
             ×
           </button>
           <h2 className="space-detail__name">{space.name}</h2>
-          <div className="space-detail__link-row">
-            <a href={googleMapsUrl(space.raw)} target="_blank" rel="noreferrer" className="space-detail__address">
-              {space.address ? `Route me to ${space.address}` : 'Address unavailable'}
-            </a>
-            {onHighlightMap && (
-              <button type="button" className="space-detail__highlight" onClick={onHighlightMap}>
-                Highlight on map
-              </button>
+          <a href={googleMapsUrl(space.raw)} target="_blank" rel="noreferrer" className="space-detail__address">
+            <span className="material-icons" aria-hidden="true">
+              map
+            </span>
+            {space.address ? (
+              <>
+                Take me to {space.address} <span aria-hidden="true">→</span>
+              </>
+            ) : (
+              'Address unavailable'
             )}
-          </div>
+          </a>
         </div>
 
         <div className="space-detail__body">
@@ -107,7 +101,7 @@ export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps
                 </>
               ) : (
                 <div className="amenity-empty">
-                  <p className="amenity-empty__title">No amenities found here 🙁</p>
+                  <p className="amenity-empty__title">No amenities found here :(</p>
                   <p className="amenity-empty__hint">
                     This space may have amenities that just aren't listed in the dataset yet.
                   </p>
@@ -118,7 +112,7 @@ export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps
             <AccordionSection title="Hours">
               <p className="hours-value">{space.hours}</p>
               <p className="space-detail__hours-caveat">
-                ⚠️ This data may be out of date — confirm hours before visiting.
+                This data may be out of date. Confirm hours before visiting.
               </p>
               {latestHoursUpdate && (
                 <div className="space-detail__hours-reported">
@@ -145,13 +139,14 @@ export function SpaceDetail({ space, onClose, onHighlightMap }: SpaceDetailProps
             </AccordionSection>
 
             <AccordionSection title="Accessibility">
-              <p style={{ color: ADA_COLOR[space.ada.status] }} className="space-detail__ada-label">
-                ♿ {space.ada.label}
+              <p className="space-detail__ada-label">
+                {space.ada.label}
               </p>
               {space.ada.subtitle && <p className="space-detail__ada-subtitle">{space.ada.subtitle}</p>}
             </AccordionSection>
 
             <AccordionSection title="Photos & updates">
+              <p className="space-detail__section-summary">Uploads</p>
               <PhotosSection
                 spaceId={space.id}
                 spaceName={space.name}

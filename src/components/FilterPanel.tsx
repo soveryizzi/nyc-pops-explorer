@@ -1,5 +1,5 @@
 import { AMENITIES, BOROUGHS } from '../lib/constants'
-import type { AdaFilter, FilterState, TypeFilter, UseUrlStateResult } from '../hooks/useUrlState'
+import type { FilterState, TypeFilter, UseUrlStateResult } from '../hooks/useUrlState'
 
 interface FilterPanelProps {
   filters: FilterState
@@ -60,14 +60,16 @@ export function FilterPanel({ filters, update }: FilterPanelProps) {
       <fieldset className="filter-group">
         <legend>Accessibility</legend>
         <div className="chip-row">
-          {(['full', 'partial'] as AdaFilter[]).map((ada) => (
-            <Chip
-              key={ada}
-              label={ada === 'full' ? '♿ Full' : '♿ Some'}
-              pressed={filters.ada.includes(ada)}
-              onClick={() => update({ ada: toggle(filters.ada, ada) }, { push: true })}
-            />
-          ))}
+          {/* NYC's dataset never reports "full" and "partial" ADA
+              access as distinct values in practice — every accessible
+              record comes through as "Full/Partial" (see resolveAda),
+              so a two-chip Full/Some split always left one chip
+              permanently empty. One chip matching either status. */}
+          <Chip
+            label="♿ Accessible"
+            pressed={filters.ada.length > 0}
+            onClick={() => update({ ada: filters.ada.length > 0 ? [] : ['full', 'partial'] }, { push: true })}
+          />
         </div>
       </fieldset>
 

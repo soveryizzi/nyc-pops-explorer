@@ -75,9 +75,13 @@ export function resolveName(record: RawPopsRecord): string {
   return addressName ? titleCaseAddress(addressName) : 'Unnamed space'
 }
 
+function dropCityStateZip(value: string): string {
+  return value.split(',')[0].trim()
+}
+
 export function resolveAddress(record: RawPopsRecord): string {
   const address = firstNonEmpty(
-    record.building_address_with_zip,
+    record.building_address_with_zip ? dropCityStateZip(record.building_address_with_zip) : undefined,
     firstNonEmpty(record.address_number, record.street_name)
       ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
       : undefined,
@@ -121,11 +125,15 @@ export function isIndoor(record: RawPopsRecord): boolean {
 
 export function resolveAmenities(record: RawPopsRecord): Set<AmenityKey> {
   const text = (record.amenities_required ?? '').toLowerCase().trim()
+  // "24-hour access" describes when the space is open, not a listed
+  // amenity — that lives in hour_of_access_required, not
+  // amenities_required, so it needs its own field to match against.
+  const hoursText = (record.hour_of_access_required ?? '').toLowerCase().trim()
   const result = new Set<AmenityKey>()
-  if (!text || text === 'none') return result
 
   for (const { id, keywords } of AMENITIES) {
-    if (keywords.some((keyword) => text.includes(keyword))) {
+    const haystack = id === '24-hour-access' ? hoursText : text
+    if (haystack && haystack !== 'none' && keywords.some((keyword) => haystack.includes(keyword))) {
       result.add(id)
     }
   }
