@@ -57,7 +57,7 @@ export function PhotoLightbox({ photos, startIndex, spaceName, onClose }: PhotoL
           </button>
         )}
 
-        <img src={photo.url} alt={`${spaceName} visitor photo`} className="photo-lightbox__image" />
+        <img src={photo.url} alt={`${spaceName} — visitor photo`} className="photo-lightbox__image" />
 
         {hasMultiple && (
           <button

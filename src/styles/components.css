@@ -158,7 +158,7 @@ a:focus-visible {
 .app-header {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
   box-shadow: 0 8px 24px rgba(44, 78, 56, 0.28);
 }
@@ -212,11 +212,17 @@ a:focus-visible {
   flex-shrink: 0;
 }
 
+.app-header__icons {
+  height: 100%;
+  align-items: center;
+}
+
 .icon-button {
   position: relative;
   width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  min-width: 36px;
+  height: 100%;
+  border-radius: var(--radius-md);
   border: none;
   background: var(--on-primary-veil);
   color: var(--color-on-primary);
@@ -359,6 +365,104 @@ a:focus-visible {
   color: var(--color-ink);
 }
 
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.feedback-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.feedback-form__label {
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-semibold);
+  color: var(--on-primary-muted);
+}
+
+.feedback-form__textarea,
+.feedback-form__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--on-primary-inset);
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+}
+
+.feedback-form__textarea {
+  min-height: 108px;
+  resize: vertical;
+}
+
+.feedback-form__textarea::placeholder,
+.feedback-form__input::placeholder {
+  color: var(--on-primary-muted);
+  font-weight: var(--type-weight-regular);
+}
+
+.feedback-form__textarea:focus-visible,
+.feedback-form__input:focus-visible {
+  outline-offset: -2px;
+  outline: 2px solid var(--color-focus);
+}
+
+.app-header .feedback-form__textarea:focus-visible,
+.app-header .feedback-form__input:focus-visible {
+  outline-color: var(--color-on-primary);
+}
+
+.feedback-form__submit {
+  align-self: flex-start;
+  padding: var(--space-2) var(--space-4);
+}
+
+.feedback-form__disclaimer,
+.feedback-form__attributions {
+  margin: 0;
+  font-size: var(--type-size-xs);
+  color: var(--on-primary-muted);
+  max-width: min(320px, 100%);
+}
+
+.feedback-form__disclaimer + .feedback-form__disclaimer {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.feedback-form__disclaimer strong {
+  display: inline-block;
+  font-size: var(--type-size-sm);
+  text-transform: uppercase;
+}
+
+.feedback-form__attributions {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.feedback-form__status {
+  margin: 0;
+  font-size: var(--type-size-sm);
+  min-height: 1em;
+}
+
+/* Both use the on-primary cream (not --color-primary/--color-ada-none,
+   which are near-invisible on this green background — verified
+   1.0:1 and 1.2:1) and lean on the icon prefix, not hue, to tell
+   success from error apart. */
+.feedback-form__success,
+.feedback-form__error {
+  color: var(--color-on-primary);
+  font-weight: var(--type-weight-extrabold);
+}
+
 .space-detail__hours-actions .button {
   font-size: var(--type-size-sm);
   padding: var(--space-2) var(--space-5);
@@ -461,7 +565,7 @@ a:focus-visible {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .result-list__empty {
@@ -557,6 +661,10 @@ a:focus-visible {
   box-shadow: 0 4px 16px rgba(44, 78, 56, 0.3);
 }
 
+.space-card[data-selected='true'] .tag--neutral {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .space-card {
     animation: none;
@@ -586,6 +694,7 @@ a:focus-visible {
 .space-card__name {
   font-family: var(--font-display);
   font-weight: var(--type-weight-semibold);
+  font-size: var(--type-size-sm);
   color: var(--color-ink);
 }
 
@@ -672,7 +781,7 @@ a:focus-visible {
   scroll-padding-top: calc(var(--app-header-height, 120px) + var(--space-4));
   /* Same radius as the header's top-right corner, so scrolled cards
      clip along the exact curve instead of peeking through the notch. */
-  border-radius: 0 var(--radius-xl) 0 0;
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
 }
 
 /* Desktop detail card */
@@ -766,7 +875,7 @@ a:focus-visible {
 
 .view-toggle {
   position: absolute;
-  bottom: var(--space-4);
+  bottom: calc(var(--space-8) + var(--space-5));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -775,6 +884,18 @@ a:focus-visible {
   box-shadow: 0 4px 14px rgba(47, 58, 46, 0.25);
   padding: 4px;
   z-index: var(--z-panel);
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact-show {
+  max-width: min(264px, calc(100vw - 160px));
+}
+
+.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-inner {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .view-toggle__button {
@@ -1104,7 +1225,7 @@ a:focus-visible {
   border-top: 1px solid var(--color-border);
   font-size: var(--type-size-xs);
   line-height: 1.6;
-  color: var(--color-ink-soft);
+  color: var(--color-ink);
 }
 
 .amenity-absent strong {

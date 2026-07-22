@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { countActiveFilters } from '../hooks/useFilters'
 import type { UseUrlStateResult } from '../hooks/useUrlState'
+import { FeedbackForm } from './FeedbackForm'
 import { FilterPanel } from './FilterPanel'
 import { SearchBar } from './SearchBar'
 
@@ -16,13 +17,40 @@ interface AppHeaderProps {
 export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const activeCount = countActiveFilters(filters)
 
   const handleTitleClick = () => {
     setSearchOpen(false)
     setFiltersOpen(false)
+    setFeedbackOpen(false)
     onReset()
+  }
+
+  const toggleFeedback = () => {
+    const open = !feedbackOpen
+    if (open) {
+      setSearchOpen(false)
+      setFiltersOpen(false)
+    }
+    setFeedbackOpen(open)
+  }
+
+  const toggleSearch = () => {
+    const open = !searchOpen
+    if (open) {
+      setFeedbackOpen(false)
+    }
+    setSearchOpen(open)
+  }
+
+  const toggleFilters = () => {
+    const open = !filtersOpen
+    if (open) {
+      setFeedbackOpen(false)
+    }
+    setFiltersOpen(open)
   }
 
   // The result lists scroll underneath this header, so they need its
@@ -60,11 +88,24 @@ export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderPr
           <button
             type="button"
             className="icon-button"
+            aria-label="Send feedback"
+            aria-expanded={feedbackOpen}
+            aria-controls="feedback-panel"
+            data-active={feedbackOpen}
+            onClick={toggleFeedback}
+          >
+            <span className="material-icons" aria-hidden="true">
+              feedback
+            </span>
+          </button>
+          <button
+            type="button"
+            className="icon-button"
             aria-label="Search"
             aria-expanded={searchOpen}
             aria-controls="search-panel"
             data-active={searchOpen}
-            onClick={() => setSearchOpen((open) => !open)}
+            onClick={toggleSearch}
           >
             <span className="material-icons" aria-hidden="true">
               search
@@ -77,7 +118,7 @@ export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderPr
             aria-expanded={filtersOpen}
             aria-controls="filters-panel"
             data-active={filtersOpen}
-            onClick={() => setFiltersOpen((open) => !open)}
+            onClick={toggleFilters}
           >
             <span className="material-icons" aria-hidden="true">
               tune
@@ -105,6 +146,11 @@ export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderPr
       <div id="filters-panel" className="app-header__panel" data-open={filtersOpen} inert={!filtersOpen}>
         <div className="app-header__panel-inner">
           <FilterPanel filters={filters} update={update} />
+        </div>
+      </div>
+      <div id="feedback-panel" className="app-header__panel" data-open={feedbackOpen} inert={!feedbackOpen}>
+        <div className="app-header__panel-inner">
+          <FeedbackForm />
         </div>
       </div>
 

@@ -27,7 +27,3 @@ body {
   inset: 0;
 }
 
-.maplibregl-ctrl-attrib a {
-  color: var(--color-ink-soft);
-}
-

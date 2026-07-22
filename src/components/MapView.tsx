@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Map, { AttributionControl, Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre'
+import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from '../lib/constants'
 import type { PopsSpace } from '../lib/resolvers'
@@ -63,6 +63,9 @@ export function MapView({
       el.removeAttribute('aria-label')
       el.removeAttribute('tabindex')
     })
+    container.querySelectorAll('details.maplibregl-ctrl-attrib[open]').forEach((details) => {
+      details.removeAttribute('open')
+    })
   }, [mappable])
 
   useEffect(() => {
@@ -107,11 +110,6 @@ export function MapView({
       onClick={onDeselect}
     >
       <NavigationControl position="bottom-right" />
-      <AttributionControl
-        position="bottom-left"
-        compact
-        customAttribution={['OpenStreetMap contributors', 'OpenFreeMap', 'NYC Open Data']}
-      />
       {mappable.map((space) => (
         <Marker
           key={space.id}

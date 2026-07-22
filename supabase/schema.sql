@@ -1,35 +1,44 @@
--- NYC POPS Explorer — visitor submissions (photos + corrected hours).
+-- NYC POPS Explorer — visitor submissions (photos, corrected hours,
+-- and general app feedback).
 --
 -- Setup (fresh project): create a Supabase project, then paste this
 -- whole file into the SQL Editor (Dashboard → SQL Editor → New query)
 -- and run it once.
 --
--- Already have the table from before the 'plate' kind existed? Run
--- supabase/migrations/001_add_plate_kind.sql instead — this file
--- reflects the full current state, not an incremental diff.
+-- Already have the table from before 'plate'/'feedback' existed? Run
+-- the migrations under supabase/migrations/ in order instead — this
+-- file reflects the full current state, not an incremental diff.
 --
 -- Moderation happens in the dashboard: Table Editor → submissions →
 -- change a row's status to 'approved' (or 'rejected'). Only approved
--- rows are ever visible to the app.
+-- rows are ever visible to the app; 'feedback' rows are never shown
+-- back to visitors at all, so status there is just a read/actioned
+-- marker for whoever's triaging.
 --
 -- 'plate' rows: a visitor's photo of the legally-required POPS hours
 -- plate, OCR'd client-side (see src/lib/ocr.ts) — carries both
 -- hours_text and photo_path so a moderator sees the claimed hours
 -- right next to the photo they were read from, not as two separate
 -- rows to correlate by hand.
+--
+-- 'feedback' rows aren't tied to a space (general app feedback, not a
+-- correction) — space_id is nullable for exactly this kind.
 
 create table public.submissions (
   id uuid primary key default gen_random_uuid(),
-  space_id text not null,
-  kind text not null check (kind in ('photo', 'hours', 'plate')),
+  space_id text,
+  kind text not null check (kind in ('photo', 'hours', 'plate', 'feedback')),
   hours_text text,
   photo_path text,
+  message text,
+  email text,
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
   created_at timestamptz not null default now(),
   check (
-    (kind = 'hours' and hours_text is not null)
-    or (kind = 'photo' and photo_path is not null)
-    or (kind = 'plate' and hours_text is not null and photo_path is not null)
+    (kind = 'hours' and space_id is not null and hours_text is not null)
+    or (kind = 'photo' and space_id is not null and photo_path is not null)
+    or (kind = 'plate' and space_id is not null and hours_text is not null and photo_path is not null)
+    or (kind = 'feedback' and message is not null)
   )
 );
 

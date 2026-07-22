@@ -50,7 +50,7 @@ export function PhotosSection({ spaceId, spaceName, photos, onPhotoClick }: Phot
 
     const prepared = await prepareImageForUpload(rawFile)
     if (prepared.size > MAX_PHOTO_BYTES) {
-      setError('That photo is too large. Try a different one.')
+      setError('That photo is too large — try a different one.')
       resetForm()
       return
     }
@@ -87,7 +87,7 @@ export function PhotosSection({ spaceId, spaceName, photos, onPhotoClick }: Phot
       setSuccess('Thanks! Your update will appear once it has been reviewed.')
       resetForm()
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Something went wrong — please try again.')
     } finally {
       setBusy(false)
     }
@@ -97,7 +97,7 @@ export function PhotosSection({ spaceId, spaceName, photos, onPhotoClick }: Phot
     <>
       {submissionsEnabled && (
         <p className="photo-caption">
-          Upload a photo of the space or the plate. We'll read the hours automatically if it's there.
+          Upload a photo of the space or the plate — we'll read the hours automatically if it's there.
         </p>
       )}
 
@@ -109,7 +109,7 @@ export function PhotosSection({ spaceId, spaceName, photos, onPhotoClick }: Phot
             className="photo-grid__item"
             onClick={() => onPhotoClick(index)}
           >
-            <img src={photo.url} alt={`${spaceName} visitor photo`} loading="lazy" />
+            <img src={photo.url} alt={`${spaceName} — visitor photo`} loading="lazy" />
           </button>
         ))}
         {submissionsEnabled && (
@@ -159,8 +159,8 @@ export function PhotosSection({ spaceId, spaceName, photos, onPhotoClick }: Phot
                 />
                 <p className="suggest-form__hint">
                   {hoursDetected
-                    ? 'Read from your photo; check it’s right, or edit it.'
-                    : "Couldn't read hours from this photo; type them in if you can see them, or leave blank."}
+                    ? 'Read from your photo — check it’s right, or edit it.'
+                    : "Couldn't read hours from this photo — type them in if you can see them, or leave blank."}
                 </p>
               </div>
               <button type="submit" className="button button--primary suggest-form__submit" disabled={busy}>

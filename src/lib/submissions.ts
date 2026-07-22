@@ -79,6 +79,16 @@ export async function submitPlate(spaceId: string, file: File, hoursText: string
   if (error) throw error
 }
 
+// General app feedback, not tied to any space — space_id is left out
+// of the insert (nullable column, exactly for this kind).
+export async function submitFeedback(message: string, email?: string): Promise<void> {
+  if (!supabase) throw new Error('Submissions are not configured')
+  const { error } = await supabase
+    .from('submissions')
+    .insert({ kind: 'feedback', message, email: email || null })
+  if (error) throw error
+}
+
 export async function fetchApproved(spaceId: string): Promise<ApprovedContent> {
   if (!supabase) return EMPTY_APPROVED
   const { data, error } = await supabase
