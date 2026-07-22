@@ -41,6 +41,14 @@
 
   --color-ink: var(--ink-900);
   --color-ink-soft: var(--ink-600);
+
+  /* Detail-sheet type roles: section titles and all supporting copy
+     share one grey at one size; only each section's bolded lead line
+     ("headline") is black. Point components at these roles, not the
+     raw inks, so the hierarchy stays enforceable in one place. */
+  --color-heading: var(--color-ink);
+  --color-copy: var(--color-ink-soft);
+  --type-size-copy: var(--type-size-sm);
   --color-surface: var(--neutral-white);
   --color-canvas: var(--cream-100);
   --color-surface-mint: var(--green-100);

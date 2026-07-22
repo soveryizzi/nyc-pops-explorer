@@ -1362,7 +1362,7 @@ a:focus-visible {
   font-weight: var(--type-weight-extrabold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-ink-soft);
+  color: var(--color-copy);
 }
 
 .accordion__chevron {
@@ -1418,9 +1418,9 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-copy);
   font-weight: var(--type-weight-semibold);
-  color: var(--color-ink);
+  color: var(--color-heading);
 }
 
 .amenity-present li svg {
@@ -1432,9 +1432,9 @@ a:focus-visible {
   margin: 0;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
-  font-size: var(--type-size-xs);
+  font-size: var(--type-size-copy);
   line-height: 1.6;
-  color: var(--color-ink);
+  color: var(--color-copy);
 }
 
 .amenity-absent strong {
@@ -1446,33 +1446,24 @@ a:focus-visible {
   margin: 0;
 }
 
+/* Each section's bolded lead line — the only black text in a section. */
 .amenity-empty__title,
 .hours-value,
-.space-detail__section-summary,
 .space-detail__ada-label {
   margin: 0 0 var(--space-2);
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-copy);
   font-weight: var(--type-weight-semibold);
-  color: var(--color-ink);
+  color: var(--color-heading);
 }
 
-.space-detail__ada-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
+/* Everything else is copy: one grey, one size. */
 .amenity-empty__hint,
 .space-detail__hours-caveat,
 .space-detail__ada-subtitle,
 .photo-caption {
   margin: var(--space-1) 0 0;
-  font-size: var(--type-size-xs);
-  color: var(--color-ink-soft);
-}
-
-.hours-value {
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-copy);
+  color: var(--color-copy);
 }
 
 .space-detail__hours-actions {
@@ -1480,12 +1471,6 @@ a:focus-visible {
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-4);
-}
-
-.space-detail__ada-subtitle {
-  margin: var(--space-1) 0 0;
-  font-size: var(--type-size-xs);
-  color: var(--color-ink-soft);
 }
 
 /* Visitor submissions: approved content + suggestion form */
@@ -1502,14 +1487,14 @@ a:focus-visible {
   font-weight: var(--type-weight-extrabold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-primary);
+  color: var(--color-copy);
 }
 
 .space-detail__hours-reported-text {
   margin: 2px 0 0;
-  font-size: var(--type-size-sm);
+  font-size: var(--type-size-copy);
   font-weight: var(--type-weight-semibold);
-  color: var(--color-ink);
+  color: var(--color-heading);
 }
 
 .photo-grid {
@@ -1549,14 +1534,14 @@ a:focus-visible {
 
 .photo-grid__empty {
   margin: 0;
-  font-size: var(--type-size-sm);
-  color: var(--color-ink-soft);
+  font-size: var(--type-size-copy);
+  color: var(--color-copy);
 }
 
 .photo-caption {
   margin: var(--space-1) 0 var(--space-3);
-  font-size: var(--type-size-xs);
-  color: var(--color-ink-soft);
+  font-size: var(--type-size-copy);
+  color: var(--color-copy);
 }
 
 .photo-grid__item {
@@ -1675,8 +1660,8 @@ a:focus-visible {
 
 .suggest-form__hint {
   margin: var(--space-1) 0 0;
-  font-size: var(--type-size-xs);
-  color: var(--color-ink-soft);
+  font-size: var(--type-size-copy);
+  color: var(--color-copy);
 }
 
 /* Photo lightbox */
