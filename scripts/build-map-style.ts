@@ -55,43 +55,16 @@ function recolorLayer(layer: any) {
   }
 }
 
-// OpenMapTiles' poi source-layer tags each point with a "class"
-// property (hospital, rail, school, restaurant, ...) using the same
-// taxonomy as the landuse layer's polygons. The generic rank-tier
-// poi_r*/poi_transit layers don't filter most of these out, so their
-// icons/labels render mixed in with everything else — this appends
-// "not <class>" clauses to any point-symbol layer's filter so the
-// given classes don't, without touching any other POI class sharing
-// that same layer. Excludes: hospital (just unwanted), rail and bus
-// (the app renders its own subway station layer — see TransitMarker
-// — so the base map's own transit icons/names would be a duplicate),
-// airport (just unwanted, same as hospital).
-const EXCLUDED_POI_CLASSES = ['hospital', 'rail', 'bus', 'airport']
-
-function excludeSelectedPois(layer: any) {
-  // Scoped to the poi source-layer specifically — "class" means
-  // something different on every other source-layer (a place's
-  // class is city/town/village, a waterway's is river/canal, etc.),
-  // so applying these exclusions there was always a harmless no-op,
-  // just needless filter bloat on every symbol layer in the style.
-  if (layer.type !== 'symbol' || !layer.filter || layer['source-layer'] !== 'poi') return
-  const exclusions = EXCLUDED_POI_CLASSES.map((cls) => ['!=', ['get', 'class'], cls])
-  layer.filter = ['all', layer.filter, ...exclusions]
-}
-
-// Water body/waterway name labels ("Hudson River", "East River", ...),
-// the separate major-airport code/name label layer (JFK, LGA, EWR —
-// a different, non-poi layer from the poi_transit "airport" class
-// excluded above), and poi_transit itself: its only three classes
-// are airport/bus/rail, all excluded above, so it can no longer ever
-// match anything — dropped outright rather than left as dead weight.
-const DROPPED_LAYER_IDS = new Set([
-  'landuse_hospital',
-  'water_name_point_label',
-  'water_name_line_label',
-  'waterway_line_label',
-  'airport',
-  'poi_transit',
+// Street names are the only labels the map keeps. Every other symbol
+// layer in liberty — POI icons/names, one-way arrows, highway route
+// shields, water/waterway names, and all place labels (neighborhood,
+// city, state, country) — is dropped: the app draws its own markers
+// (POPS pins, subway stations), so the base map's job is just quiet
+// geographic orientation.
+const STREET_NAME_LAYER_IDS = new Set([
+  'highway-name-path',
+  'highway-name-minor',
+  'highway-name-major',
 ])
 
 async function main() {
@@ -101,14 +74,16 @@ async function main() {
 
   // Drop 3D building extrusions (flat map), the hospital land-use fill
   // (a distinct colored blob over hospital campuses that reads as
-  // "there's a medical center here"), and water body/waterway names.
+  // "there's a medical center here"), and every label except street names.
   style.layers = (style.layers ?? []).filter(
-    (layer) => layer.type !== 'fill-extrusion' && !DROPPED_LAYER_IDS.has(layer.id),
+    (layer) =>
+      layer.type !== 'fill-extrusion' &&
+      layer.id !== 'landuse_hospital' &&
+      (layer.type !== 'symbol' || STREET_NAME_LAYER_IDS.has(layer.id)),
   )
 
   for (const layer of style.layers) {
     recolorLayer(layer)
-    excludeSelectedPois(layer)
   }
 
   await writeFile(OUT_PATH, JSON.stringify(style, null, 2) + '\n')

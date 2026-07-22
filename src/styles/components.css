@@ -1141,11 +1141,12 @@ a:focus-visible {
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   overflow-y: auto;
-  /* Without this, iOS's elastic rubber-band bounce lets the scroll
-     position go negative when you drag past the top, which briefly
-     reveals this container's own white background above the sticky
-     cap/header instead of scroll-chaining or just clamping. */
-  overscroll-behavior-y: contain;
+  /* `none`, not `contain`: both stop scroll-chaining to the page,
+     but contain still allowed iOS's elastic rubber-band bounce inside
+     the sheet itself — the scroll position went negative on a
+     drag-past-the-top, briefly revealing this container's white
+     background above the sticky cap/header. */
+  overscroll-behavior-y: none;
   box-shadow: 0 -4px 20px rgba(27, 49, 35, 0.3);
   /* A gentler spring than --motion-ease-spring's 1.4 overshoot
      (scoped here, not changed globally — card entrance and other
@@ -1199,6 +1200,11 @@ a:focus-visible {
   justify-content: center;
   padding: var(--space-2) 0 var(--space-1);
   box-sizing: border-box;
+  /* The cap lives inside the sheet's scroll container, so without
+     this iOS claims a touch on it as a scroll gesture — the sheet
+     rubber-bands and fires pointercancel, killing the resize drag
+     before it starts. None: touches on the cap only ever drag. */
+  touch-action: none;
 }
 
 .mobile-sheet--outdoor .mobile-sheet__cap {
