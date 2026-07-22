@@ -1,6 +1,6 @@
 import { useState, type RefObject } from 'react'
 import { AMENITIES } from '../lib/constants'
-import { googleMapsUrl, nycPlanningUrl, type PopsSpace } from '../lib/resolvers'
+import { googleMapsUrl, nycPlanningUrl, type AdaStatus, type PopsSpace } from '../lib/resolvers'
 import { useApprovedSubmissions } from '../hooks/useApprovedSubmissions'
 import { useDialogClose } from '../hooks/useDialogClose'
 import { AccordionSection } from './AccordionSection'
@@ -8,6 +8,15 @@ import { PhotoLightbox } from './PhotoLightbox'
 import { PhotosSection } from './PhotosSection'
 
 const MONTH_YEAR = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' })
+
+/* Status-tinted ADA label — the tokens are all AA-verified on
+   white/cream surfaces (see tokens.css). */
+const ADA_COLOR: Record<AdaStatus, string> = {
+  full: 'var(--color-ada-full)',
+  partial: 'var(--color-ada-partial)',
+  none: 'var(--color-ada-none)',
+  unknown: 'var(--color-ada-unknown)',
+}
 
 interface SpaceDetailProps {
   space: PopsSpace
@@ -101,7 +110,7 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
                 </>
               ) : (
                 <div className="amenity-empty">
-                  <p className="amenity-empty__title">No amenities found here :(</p>
+                  <p className="amenity-empty__title">No amenities found here 🙁</p>
                   <p className="amenity-empty__hint">
                     This space may have amenities that just aren't listed in the dataset yet.
                   </p>
@@ -112,7 +121,7 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
             <AccordionSection title="Hours">
               <p className="hours-value">{space.hours}</p>
               <p className="space-detail__hours-caveat">
-                This data may be out of date. Confirm hours before visiting.
+                ⚠️ This data may be out of date — confirm hours before visiting.
               </p>
               {latestHoursUpdate && (
                 <div className="space-detail__hours-reported">
@@ -139,14 +148,13 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
             </AccordionSection>
 
             <AccordionSection title="Accessibility">
-              <p className="space-detail__ada-label">
-                {space.ada.label}
+              <p style={{ color: ADA_COLOR[space.ada.status] }} className="space-detail__ada-label">
+                ♿ {space.ada.label}
               </p>
               {space.ada.subtitle && <p className="space-detail__ada-subtitle">{space.ada.subtitle}</p>}
             </AccordionSection>
 
             <AccordionSection title="Photos & updates">
-              <p className="space-detail__section-summary">Uploads</p>
               <PhotosSection
                 spaceId={space.id}
                 spaceName={space.name}

@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 
 interface MobileSheetProps {
   children: ReactNode
-  onBackdropClick: () => void
   /* Colors the grabber cap to match the detail header below it. */
   tone: 'indoor' | 'outdoor'
   /* Plays the exit animation; the parent unmounts after it finishes. */
@@ -15,9 +14,11 @@ interface MobileSheetProps {
 }
 
 // Positioning shell only — the child (SpaceDetail) owns dialog role, focus, and Escape handling.
+// No scrim: the map stays interactive underneath, so tapping another
+// marker swaps the sheet and tapping empty map deselects (both wired
+// through MapView, not here).
 export function MobileSheet({
   children,
-  onBackdropClick,
   tone,
   closing = false,
   peeked = false,
@@ -110,39 +111,33 @@ export function MobileSheet({
 
   return (
     <div
-      className={`mobile-sheet-backdrop${closing ? ' mobile-sheet-backdrop--closing' : ''}`}
-      onClick={onBackdropClick}
+      className={`mobile-sheet mobile-sheet--${tone}${closing ? ' mobile-sheet--closing' : ''}`}
+      data-peeked={peeked}
+      style={{
+        height: peeked && peekHeight ? `${peekHeight}px` : `${height}px`,
+        // Free-drag tracking must follow the pointer 1:1 — suppress
+        // the CSS height transition while actively dragging so it
+        // only plays for the peek toggle.
+        transition: dragging.current ? 'none' : undefined,
+      }}
     >
       <div
-        className={`mobile-sheet mobile-sheet--${tone}${closing ? ' mobile-sheet--closing' : ''}`}
-        data-peeked={peeked}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          height: peeked && peekHeight ? `${peekHeight}px` : `${height}px`,
-          // Free-drag tracking must follow the pointer 1:1 — suppress
-          // the CSS height transition while actively dragging so it
-          // only plays for the peek toggle.
-          transition: dragging.current ? 'none' : undefined,
+        ref={capRef}
+        className="mobile-sheet__cap"
+        role={peeked ? 'button' : undefined}
+        aria-label={peeked ? 'Expand details' : undefined}
+        aria-hidden={peeked ? undefined : true}
+        onClick={peeked ? onExpand : undefined}
+        onPointerDown={(event) => {
+          if (peeked) return
+          dragging.current = true
+          event.currentTarget.setPointerCapture(event.pointerId)
         }}
       >
-        <div
-          ref={capRef}
-          className="mobile-sheet__cap"
-          role={peeked ? 'button' : undefined}
-          aria-label={peeked ? 'Expand details' : undefined}
-          aria-hidden={peeked ? undefined : true}
-          onClick={peeked ? onExpand : undefined}
-          onPointerDown={(event) => {
-            if (peeked) return
-            dragging.current = true
-            event.currentTarget.setPointerCapture(event.pointerId)
-          }}
-        >
-          <div className="mobile-sheet__handle" />
-        </div>
-        <div ref={contentRef} className="mobile-sheet__content">
-          {children}
-        </div>
+        <div className="mobile-sheet__handle" />
+      </div>
+      <div ref={contentRef} className="mobile-sheet__content">
+        {children}
       </div>
     </div>
   )

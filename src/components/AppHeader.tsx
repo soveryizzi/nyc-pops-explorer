@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { countActiveFilters } from '../hooks/useFilters'
 import type { UseUrlStateResult } from '../hooks/useUrlState'
-import { FeedbackForm } from './FeedbackForm'
 import { FilterPanel } from './FilterPanel'
 import { SearchBar } from './SearchBar'
+import { SettingsPanel } from './SettingsPanel'
 
 interface AppHeaderProps {
   filters: UseUrlStateResult['filters']
@@ -21,30 +21,30 @@ interface AppHeaderProps {
 export function AppHeader({ filters, update, resultCount, onReset, showTransit, onToggleTransit }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const activeCount = countActiveFilters(filters)
 
   const handleTitleClick = () => {
     setSearchOpen(false)
     setFiltersOpen(false)
-    setFeedbackOpen(false)
+    setSettingsOpen(false)
     onReset()
   }
 
-  const toggleFeedback = () => {
-    const open = !feedbackOpen
+  const toggleSettings = () => {
+    const open = !settingsOpen
     if (open) {
       setSearchOpen(false)
       setFiltersOpen(false)
     }
-    setFeedbackOpen(open)
+    setSettingsOpen(open)
   }
 
   const toggleSearch = () => {
     const open = !searchOpen
     if (open) {
-      setFeedbackOpen(false)
+      setSettingsOpen(false)
     }
     setSearchOpen(open)
   }
@@ -52,7 +52,7 @@ export function AppHeader({ filters, update, resultCount, onReset, showTransit, 
   const toggleFilters = () => {
     const open = !filtersOpen
     if (open) {
-      setFeedbackOpen(false)
+      setSettingsOpen(false)
     }
     setFiltersOpen(open)
   }
@@ -92,14 +92,14 @@ export function AppHeader({ filters, update, resultCount, onReset, showTransit, 
           <button
             type="button"
             className="icon-button"
-            aria-label="Send feedback"
-            aria-expanded={feedbackOpen}
-            aria-controls="feedback-panel"
-            data-active={feedbackOpen}
-            onClick={toggleFeedback}
+            aria-label="Settings"
+            aria-expanded={settingsOpen}
+            aria-controls="settings-panel"
+            data-active={settingsOpen}
+            onClick={toggleSettings}
           >
             <span className="material-icons" aria-hidden="true">
-              feedback
+              settings
             </span>
           </button>
           <button
@@ -149,17 +149,12 @@ export function AppHeader({ filters, update, resultCount, onReset, showTransit, 
       </div>
       <div id="filters-panel" className="app-header__panel" data-open={filtersOpen} inert={!filtersOpen}>
         <div className="app-header__panel-inner">
-          <FilterPanel
-            filters={filters}
-            update={update}
-            showTransit={showTransit}
-            onToggleTransit={onToggleTransit}
-          />
+          <FilterPanel filters={filters} update={update} />
         </div>
       </div>
-      <div id="feedback-panel" className="app-header__panel" data-open={feedbackOpen} inert={!feedbackOpen}>
+      <div id="settings-panel" className="app-header__panel" data-open={settingsOpen} inert={!settingsOpen}>
         <div className="app-header__panel-inner">
-          <FeedbackForm />
+          <SettingsPanel showTransit={showTransit} onToggleTransit={onToggleTransit} />
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import { useId, useState, type FormEvent } from 'react'
 import { submissionsEnabled, submitFeedback } from '../lib/submissions'
 
-// Lives inside the header's feedback panel (see AppHeader) — general
+// Lives inside the settings panel (see SettingsPanel) — general
 // app feedback, not tied to any space, so unlike PhotosSection there's
 // no spaceId to thread through.
 export function FeedbackForm() {
@@ -39,12 +39,6 @@ export function FeedbackForm() {
 
   return (
     <form className="feedback-form" onSubmit={handleSubmit}>
-      <p className="feedback-form__disclaimer">
-        <strong>a note</strong>
-      </p>
-      <p className="feedback-form__disclaimer">
-        This dataset hasn't been updated recently, so details like hours, amenities, and accessibility may not be accurate. We recommend verifying before you visit.
-      </p>
       <div className="feedback-form__field">
         <label htmlFor={messageId} className="feedback-form__label">
           Any feedback to share?
@@ -94,9 +88,6 @@ export function FeedbackForm() {
             {error}
           </span>
         )}
-      </p>
-      <p className="feedback-form__attributions">
-        Map/data credits: OpenStreetMap contributors, OpenFreeMap, and NYC Open Data.
       </p>
     </form>
   )

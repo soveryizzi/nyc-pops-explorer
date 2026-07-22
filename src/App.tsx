@@ -123,10 +123,13 @@ function App() {
           </nav>
 
           {sheet.shown && (
+            /* Keyed by space so picking a different marker (the map is
+               tappable behind the scrimless sheet) remounts the sheet
+               and replays its slide-up entrance for the new location. */
             <MobileSheet
+              key={sheet.shown.id}
               tone={sheet.shown.indoor ? 'indoor' : 'outdoor'}
               closing={sheet.closing}
-              onBackdropClick={handleDeselect}
             >
               <SpaceDetail space={sheet.shown} onClose={handleDeselect} />
             </MobileSheet>

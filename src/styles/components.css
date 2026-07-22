@@ -34,7 +34,7 @@
 .app-header__clear:focus-visible,
 .app-header__done:focus-visible,
 .app-header__title-button:focus-visible,
-.filter-checkbox input:focus-visible,
+.toggle:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -56,7 +56,7 @@ a:focus-visible {
 .app-header .app-header__clear:focus-visible,
 .app-header .app-header__done:focus-visible,
 .app-header .app-header__title-button:focus-visible,
-.app-header .filter-checkbox input:focus-visible {
+.app-header .toggle:focus-visible {
   outline-color: var(--color-on-primary);
 }
 
@@ -309,9 +309,11 @@ a:focus-visible {
   transform: translateY(0);
 }
 
-/* Cap the filter list so the count/Done footer stays reachable on
-   short viewports — the chip groups scroll, the footer stays pinned. */
-.app-header__panel .filter-panel {
+/* Cap the filter and settings lists so the count/Done footer stays
+   reachable on short viewports — the content scrolls, the footer
+   stays pinned. */
+.app-header__panel .filter-panel,
+.app-header__panel .settings-panel {
   max-height: 56vh;
   overflow-y: auto;
 }
@@ -442,30 +444,6 @@ a:focus-visible {
   padding: var(--space-2) var(--space-4);
 }
 
-.feedback-form__disclaimer,
-.feedback-form__attributions {
-  margin: 0;
-  font-size: var(--type-size-xs);
-  color: var(--on-primary-muted);
-  max-width: min(320px, 100%);
-}
-
-.feedback-form__disclaimer + .feedback-form__disclaimer {
-  margin-top: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-
-.feedback-form__disclaimer strong {
-  display: inline-block;
-  font-size: var(--type-size-sm);
-  text-transform: uppercase;
-}
-
-.feedback-form__attributions {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
-}
-
 .feedback-form__status {
   margin: 0;
   font-size: var(--type-size-sm);
@@ -583,23 +561,92 @@ a:focus-visible {
   gap: var(--space-2);
 }
 
-.filter-checkbox {
+/* Settings panel (inside the green header): note → settings (map
+   toggle + feedback form) → credits. */
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.settings-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-panel__heading {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-extrabold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--on-primary-muted);
+}
+
+.settings-panel__text {
+  margin: 0;
+  font-size: var(--type-size-xs);
+  color: var(--on-primary-muted);
+  max-width: min(320px, 100%);
+}
+
+.toggle-row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: space-between;
+  gap: var(--space-3);
   min-height: var(--touch-target);
+}
+
+.toggle-row__label {
   color: var(--color-on-primary);
-  font-family: var(--font-sans);
   font-size: var(--type-size-sm);
   font-weight: var(--type-weight-semibold);
   cursor: pointer;
 }
 
-.filter-checkbox input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--color-accent);
+/* Switch-styled checkbox: honey track when on, inset veil when off;
+   the thumb flips to dark green on honey so it stays visible on
+   both track colors. */
+.toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--on-primary-inset);
   cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-on-primary);
+  transition:
+    transform var(--motion-duration-fast) var(--motion-ease),
+    background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.toggle:checked {
+  background: var(--color-accent);
+}
+
+.toggle:checked::after {
+  transform: translateX(20px);
+  background: var(--color-primary-dark);
 }
 
 /* Result list + cards — cards float directly over the map, flush
@@ -609,13 +656,15 @@ a:focus-visible {
 
 .sidebar__results,
 .mobile-list,
-.app-header__panel .filter-panel {
+.app-header__panel .filter-panel,
+.app-header__panel .settings-panel {
   scrollbar-width: none;
 }
 
 .sidebar__results::-webkit-scrollbar,
 .mobile-list::-webkit-scrollbar,
-.app-header__panel .filter-panel::-webkit-scrollbar {
+.app-header__panel .filter-panel::-webkit-scrollbar,
+.app-header__panel .settings-panel::-webkit-scrollbar {
   display: none;
 }
 
@@ -1016,9 +1065,7 @@ a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-sheet,
-  .mobile-sheet--closing,
-  .mobile-sheet-backdrop,
-  .mobile-sheet-backdrop--closing {
+  .mobile-sheet--closing {
     animation: none;
   }
 }
@@ -1080,37 +1127,16 @@ a:focus-visible {
 }
 
 /* Mobile sheet — springs in, and on close lifts a touch before
-   dropping away (the lingering render in App gives the exit time). */
-
-.mobile-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(27, 49, 35, 0.35);
-  z-index: var(--z-sheet);
-  animation: backdrop-fade-in var(--motion-duration-fast) var(--motion-ease);
-}
-
-.mobile-sheet-backdrop--closing {
-  animation: backdrop-fade-out 0.34s var(--motion-ease) forwards;
-}
-
-@keyframes backdrop-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes backdrop-fade-out {
-  to {
-    opacity: 0;
-  }
-}
+   dropping away (the lingering render in App gives the exit time).
+   No backdrop/scrim: the map behind it stays fully interactive so
+   tapping another marker swaps the sheet in place. */
 
 .mobile-sheet {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: var(--z-sheet);
   height: 55vh;
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -1213,6 +1239,10 @@ a:focus-visible {
   top: 0;
   z-index: 1;
   padding: var(--space-4);
+  /* Reserve the absolutely-positioned close button's full footprint
+     (right offset + width + breathing room) so the name and address
+     can never run underneath it, no matter how they wrap. */
+  padding-right: calc(var(--space-3) + var(--touch-target) + var(--space-2));
   color: var(--color-surface);
 }
 
@@ -1241,7 +1271,6 @@ a:focus-visible {
   font-family: var(--font-display);
   font-size: var(--type-size-lg);
   font-weight: var(--type-weight-extrabold);
-  padding-right: calc(var(--touch-target) + var(--space-2));
 }
 
 .space-detail__address {

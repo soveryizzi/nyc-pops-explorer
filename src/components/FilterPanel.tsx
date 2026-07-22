@@ -4,8 +4,6 @@ import type { FilterState, TypeFilter, UseUrlStateResult } from '../hooks/useUrl
 interface FilterPanelProps {
   filters: FilterState
   update: UseUrlStateResult['update']
-  showTransit: boolean
-  onToggleTransit: (show: boolean) => void
 }
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -28,7 +26,7 @@ function Chip({
   )
 }
 
-export function FilterPanel({ filters, update, showTransit, onToggleTransit }: FilterPanelProps) {
+export function FilterPanel({ filters, update }: FilterPanelProps) {
   return (
     <div className="filter-panel">
       <fieldset className="filter-group">
@@ -91,20 +89,6 @@ export function FilterPanel({ filters, update, showTransit, onToggleTransit }: F
             />
           ))}
         </div>
-      </fieldset>
-
-      {/* A map display toggle, not a POPS filter — doesn't affect the
-          result list/count, just whether the subway layer is drawn. */}
-      <fieldset className="filter-group">
-        <legend>Map</legend>
-        <label className="filter-checkbox">
-          <input
-            type="checkbox"
-            checked={showTransit}
-            onChange={(e) => onToggleTransit(e.target.checked)}
-          />
-          Show train stations
-        </label>
       </fieldset>
     </div>
   )

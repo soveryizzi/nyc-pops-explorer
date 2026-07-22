@@ -57,6 +57,22 @@ export function resolveId(record: RawPopsRecord): string {
   return firstNonEmpty(record.pops_number, record.building_address_with_zip) ?? ''
 }
 
+// Number + street only — everything after the first comma of the
+// Socrata address ("..., Brooklyn, NY 11206") is borough/state/zip
+// noise in a NYC-only app, so display drops it.
+function shortAddress(value: string): string {
+  return value.split(',')[0].trim()
+}
+
+function rawAddress(record: RawPopsRecord): string | undefined {
+  return firstNonEmpty(
+    record.building_address_with_zip,
+    firstNonEmpty(record.address_number, record.street_name)
+      ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
+      : undefined,
+  )
+}
+
 export function resolveName(record: RawPopsRecord): string {
   const addressNumberAndStreet = firstNonEmpty(record.address_number, record.street_name)
     ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
@@ -72,21 +88,12 @@ export function resolveName(record: RawPopsRecord): string {
 
   // Address-shaped fallbacks get the same casing treatment as addresses.
   const addressName = firstNonEmpty(addressNumberAndStreet, record.building_address_with_zip)
-  return addressName ? titleCaseAddress(addressName) : 'Unnamed space'
-}
-
-function dropCityStateZip(value: string): string {
-  return value.split(',')[0].trim()
+  return addressName ? titleCaseAddress(shortAddress(addressName)) : 'Unnamed space'
 }
 
 export function resolveAddress(record: RawPopsRecord): string {
-  const address = firstNonEmpty(
-    record.building_address_with_zip ? dropCityStateZip(record.building_address_with_zip) : undefined,
-    firstNonEmpty(record.address_number, record.street_name)
-      ? `${record.address_number ?? ''} ${record.street_name ?? ''}`.trim()
-      : undefined,
-  )
-  return address ? titleCaseAddress(address) : ''
+  const address = rawAddress(record)
+  return address ? titleCaseAddress(shortAddress(address)) : ''
 }
 
 export function resolveBorough(record: RawPopsRecord): string {
@@ -192,7 +199,10 @@ export function matchesSearch(record: RawPopsRecord, query: string): boolean {
 }
 
 export function googleMapsUrl(record: RawPopsRecord): string {
-  const destination = `${resolveName(record)}, ${resolveAddress(record)}, NYC`
+  // Unlike display, keep the full borough/zip tail so the maps
+  // destination stays unambiguous.
+  const address = rawAddress(record)
+  const destination = `${resolveName(record)}, ${address ? titleCaseAddress(address) : ''}, NYC`
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`
 }
 
