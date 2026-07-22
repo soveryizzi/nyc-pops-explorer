@@ -16,19 +16,50 @@ interface AppHeaderProps {
      POPS space filter, so it isn't part of the URL-driven FilterState. */
   showTransit: boolean
   onToggleTransit: (show: boolean) => void
+  /* Mobile wiring (App passes these; the desktop Sidebar doesn't):
+     reports whether any panel is open so App can hide the map/list
+     toggle underneath, and closeToken bumps close the open panel
+     (e.g. when the user taps the map behind the header). */
+  onPanelOpenChange?: (open: boolean) => void
+  closeToken?: number
 }
 
-export function AppHeader({ filters, update, resultCount, onReset, showTransit, onToggleTransit }: AppHeaderProps) {
+export function AppHeader({
+  filters,
+  update,
+  resultCount,
+  onReset,
+  showTransit,
+  onToggleTransit,
+  onPanelOpenChange,
+  closeToken,
+}: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const activeCount = countActiveFilters(filters)
+  const anyPanelOpen = searchOpen || filtersOpen || settingsOpen
 
-  const handleTitleClick = () => {
+  const closeAllPanels = () => {
     setSearchOpen(false)
     setFiltersOpen(false)
     setSettingsOpen(false)
+  }
+
+  useEffect(() => {
+    onPanelOpenChange?.(anyPanelOpen)
+  }, [anyPanelOpen, onPanelOpenChange])
+
+  useEffect(() => {
+    if (!closeToken) return
+    setSearchOpen(false)
+    setFiltersOpen(false)
+    setSettingsOpen(false)
+  }, [closeToken])
+
+  const handleTitleClick = () => {
+    closeAllPanels()
     onReset()
   }
 
@@ -172,9 +203,9 @@ export function AppHeader({ filters, update, resultCount, onReset, showTransit, 
               Clear filters
             </button>
           )}
-          {filtersOpen && (
-            <button type="button" className="app-header__done" onClick={() => setFiltersOpen(false)}>
-              Done
+          {anyPanelOpen && (
+            <button type="button" className="app-header__done" onClick={closeAllPanels}>
+              Close
             </button>
           )}
         </div>

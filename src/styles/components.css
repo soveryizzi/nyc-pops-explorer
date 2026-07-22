@@ -319,8 +319,8 @@ a:focus-visible {
 }
 
 /* Persistent bottom row of the header: result count on the left,
-   Clear filters (when any are active) and Done (when the filter
-   panel is open) on the right. */
+   Clear filters (when any are active) and Close (when any panel is
+   open) on the right. */
 .app-header__meta {
   display: flex;
   align-items: center;

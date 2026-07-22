@@ -40,6 +40,12 @@ function App() {
     }
   }, [showTransit])
 
+  // Mobile header-panel wiring: while a search/filters/settings panel
+  // is open, the map/list toggle hides underneath it, and a tap on
+  // the map behind the header closes the panel (via closeToken bump).
+  const [headerPanelOpen, setHeaderPanelOpen] = useState(false)
+  const [headerCloseToken, setHeaderCloseToken] = useState(0)
+
   const selected = spaces.find((space) => space.id === filters.space) ?? null
 
   // Linger past close/switch so the exit animations can play.
@@ -48,6 +54,13 @@ function App() {
 
   const handleSelect = (id: string) => update({ space: id }, { push: true })
   const handleDeselect = () => update({ space: null }, { push: true })
+
+  // MapView calls onDeselect only for taps on empty map — the one
+  // gesture that should also dismiss an open mobile header panel.
+  const handleMapClick = () => {
+    handleDeselect()
+    if (isMobile) setHeaderCloseToken((t) => t + 1)
+  }
 
   const handleReset = () => {
     update({ borough: [], type: [], ada: [], amenity: [], q: '', space: null }, { push: true })
@@ -76,7 +89,7 @@ function App() {
           selectedId={filters.space}
           hoveredId={hoveredId}
           onSelect={handleSelect}
-          onDeselect={handleDeselect}
+          onDeselect={handleMapClick}
           onHover={setHoveredId}
           focusToken={focusToken}
           resetToken={resetToken}
@@ -116,6 +129,8 @@ function App() {
               onReset={handleReset}
               showTransit={showTransit}
               onToggleTransit={setShowTransit}
+              onPanelOpenChange={setHeaderPanelOpen}
+              closeToken={headerCloseToken}
             />
           </header>
 
@@ -134,9 +149,11 @@ function App() {
             </nav>
           )}
 
-          <nav aria-label="View mode" className="view-toggle-nav">
-            <ViewToggle view={mobileView} onChange={setMobileView} />
-          </nav>
+          {!headerPanelOpen && (
+            <nav aria-label="View mode" className="view-toggle-nav">
+              <ViewToggle view={mobileView} onChange={setMobileView} />
+            </nav>
+          )}
 
           {sheet.shown && (
             /* Keyed by space so picking a different marker (the map is
