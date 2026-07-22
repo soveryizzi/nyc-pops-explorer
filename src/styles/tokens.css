@@ -7,19 +7,15 @@
      ============================================================ */
 
   /* Primitive colors */
-  --green-050: #f3f7ef;
   --green-100: #eaf2e4; /* selected-card tint */
-  --green-200: #d9e5d0;
   --green-600: #3e6b4e; /* white/cream text on this: 6.1:1 ✓ */
   --green-800: #2c4e38;
-  --green-950: #1b3123;
+  --green-950: #1b3123; /* base of the on-primary veils and sheet shadow (as rgba) */
 
   --cream-050: #fffdf8; /* "white" for text/surfaces on green */
   --cream-100: #fbf9f2; /* app canvas */
 
-  --honey-100: #fbf0d3;
   --honey-400: #f4d06f; /* pair with ink text only (8.4:1 ✓) — fails vs white */
-  --honey-800: #7a5e19; /* on white: 6.1:1 ✓ */
 
   --terracotta-600: #c2501f; /* vermilion — brightest orange that keeps white text AA (4.7:1 ✓) */
   --terracotta-800: #8f3e1c; /* on white: 7.3:1 ✓ */
@@ -41,6 +37,7 @@
 
   --color-ink: var(--ink-900);
   --color-ink-soft: var(--ink-600);
+  --color-error: var(--terracotta-800); /* on white: 7.3:1 ✓ */
 
   /* Detail-sheet type roles: section titles and all supporting copy
      share one grey at one size; only each section's bolded lead line
@@ -52,15 +49,8 @@
   --color-surface: var(--neutral-white);
   --color-canvas: var(--cream-100);
   --color-surface-mint: var(--green-100);
-  --color-hours-tint: var(--honey-100);
   --color-border: var(--neutral-border);
   --color-focus: var(--lake-600);
-
-  /* ADA status text colors (all on white/cream, ≥4.5:1 ✓) */
-  --color-ada-full: var(--green-600);
-  --color-ada-partial: var(--honey-800);
-  --color-ada-none: var(--terracotta-800);
-  --color-ada-unknown: var(--ink-600);
 
   /* On-primary layer: text and translucent fills used inside the
      green header. Outline mix vs green ≈ 3.6:1 (UI ✓); muted text
@@ -102,7 +92,6 @@
   --type-size-base: 16px;
   --type-size-lg: 20px;
   --type-size-xl: 24px;
-  --type-size-display: 32px;
 
   --type-weight-regular: 400;
   --type-weight-medium: 600;
@@ -116,25 +105,29 @@
    --touch-target: 44px;
 
   /* Motion — spring ease reserved for movement (transforms), the
-     standard ease for color/opacity so overshoot never hits paint. */
+     standard ease for color/opacity so overshoot never hits paint.
+     (The mobile sheet's entrance/exit timings are deliberate one-offs,
+     commented at their rules in components.css.) */
   --motion-duration-fast: 150ms;
   --motion-duration-med: 250ms;
-  --motion-duration-slow: 400ms;
   --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
 
-  /* Map styling — keep in sync with PALETTE in scripts/build-map-style.ts */
-  --map-land: #f4f2e6;
-  --map-water: #c7dfe3;
-  --map-road: #ffffff;
-  --map-road-casing: #d9d5c2;
-  --map-park: #c8dcba;
-  --map-label: #47523f;
-  --map-building: #e9e6d8;
+  /* Elevation — ink-tinted so shadows read botanical, not sooty.
+     card < float < lift; the sheet's is directional (upward). The
+     primary pair is for green elements shadowing with their own hue.
+     One-off shadows on dark/image surfaces stay local in
+     components.css. */
+  --shadow-card: 0 2px 10px rgba(47, 58, 46, 0.14);
+  --shadow-float: 0 4px 14px rgba(47, 58, 46, 0.25);
+  --shadow-lift: 0 8px 28px rgba(47, 58, 46, 0.25);
+  --shadow-sheet: 0 -4px 20px rgba(27, 49, 35, 0.3);
+  --shadow-primary: 0 2px 10px rgba(44, 78, 56, 0.3);
+  --shadow-primary-hover: 0 4px 14px rgba(44, 78, 56, 0.35);
 
-  /* Markers */
-  --marker-size-default: 20px;
-  --marker-size-selected: 32px;
+  /* The map's own palette lives in scripts/build-map-style.ts
+     (PALETTE) and ships baked into public/map-style.json — it is the
+     source of truth for base-map colors, not this file. */
 
   /* Font stacks */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -154,6 +147,5 @@
   :root {
     --motion-duration-fast: 0ms;
     --motion-duration-med: 0ms;
-    --motion-duration-slow: 0ms;
   }
 }
