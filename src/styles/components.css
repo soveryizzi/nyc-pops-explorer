@@ -1153,28 +1153,13 @@ a:focus-visible {
      alive without the sheet visibly overshooting past its resting
      position. */
   animation: sheet-slide-up 0.42s cubic-bezier(0.34, 1.15, 0.64, 1);
-  /* Height transitions when toggling peek (the component sets an
-     inline transition:none while the cap is actively being dragged,
-     so free-drag tracking stays 1:1 and only the peek toggle glides). */
+  /* The component sets an inline transition:none while the cap is
+     actively being dragged, so free-drag tracking stays 1:1. */
   transition: height 0.28s var(--motion-ease-spring);
 }
 
 .mobile-sheet--closing {
   animation: sheet-bounce-out 0.32s forwards;
-}
-
-/* Peeked: only the colored header bar shows, everything below is
-   hidden so the map underneath is free — tap the cap to expand. */
-.mobile-sheet[data-peeked='true'] {
-  overflow: hidden;
-}
-
-.mobile-sheet[data-peeked='true'] .space-detail__body {
-  display: none;
-}
-
-.mobile-sheet__cap[role='button'] {
-  cursor: pointer;
 }
 
 @keyframes sheet-slide-up {

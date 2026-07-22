@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AppHeader } from './components/AppHeader'
 import { MapView } from './components/MapView'
 import { MobileSheet } from './components/MobileSheet'
@@ -22,7 +22,23 @@ function App() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [focusToken, setFocusToken] = useState(0)
   const [resetToken, setResetToken] = useState(0)
-  const [showTransit, setShowTransit] = useState(true)
+  // A setting, so it survives reloads. try/catch: localStorage throws
+  // in some private-browsing modes, and the toggle should still work
+  // (just not persist) rather than crash.
+  const [showTransit, setShowTransit] = useState(() => {
+    try {
+      return localStorage.getItem('nyc-pops:show-transit') !== 'false'
+    } catch {
+      return true
+    }
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem('nyc-pops:show-transit', String(showTransit))
+    } catch {
+      /* not persistable — fine */
+    }
+  }, [showTransit])
 
   const selected = spaces.find((space) => space.id === filters.space) ?? null
 
@@ -131,7 +147,7 @@ function App() {
               tone={sheet.shown.indoor ? 'indoor' : 'outdoor'}
               closing={sheet.closing}
             >
-              <SpaceDetail space={sheet.shown} onClose={handleDeselect} />
+              <SpaceDetail space={sheet.shown} onClose={handleDeselect} trapFocus={false} />
             </MobileSheet>
           )}
         </>

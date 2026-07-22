@@ -21,9 +21,12 @@ const ADA_COLOR: Record<AdaStatus, string> = {
 interface SpaceDetailProps {
   space: PopsSpace
   onClose: () => void
+  /* False inside the scrimless mobile sheet, where the map behind
+     stays interactive and Tab should be able to leave the sheet. */
+  trapFocus?: boolean
 }
 
-export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
+export function SpaceDetail({ space, onClose, trapFocus = true }: SpaceDetailProps) {
   const approved = useApprovedSubmissions(space.id)
   const latestHoursUpdate = approved.hours[0]
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -39,6 +42,7 @@ export function SpaceDetail({ space, onClose }: SpaceDetailProps) {
   // while focus is inside the lightbox.
   const { containerRef, closeButtonRef } = useDialogClose<HTMLButtonElement>(
     lightboxIndex === null ? onClose : () => {},
+    { trapFocus },
   )
 
   const presentAmenities = AMENITIES.filter((a) => space.amenities.has(a.id))

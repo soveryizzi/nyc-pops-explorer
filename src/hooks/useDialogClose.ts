@@ -3,7 +3,20 @@ import { useEffect, useRef } from 'react'
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-export function useDialogClose<T extends HTMLElement = HTMLElement>(onClose: () => void) {
+interface DialogCloseOptions {
+  /* Tab-trap focus inside the container. Modal dialogs (the desktop
+     detail card, the lightbox) want this; the scrimless mobile sheet
+     is non-modal — the map behind it stays interactive — so trapping
+     keyboard users inside it would give them less than pointer users
+     get. Read through a ref (like onClose) so the once-per-lifetime
+     trap effect never needs to re-run. */
+  trapFocus?: boolean
+}
+
+export function useDialogClose<T extends HTMLElement = HTMLElement>(
+  onClose: () => void,
+  { trapFocus = true }: DialogCloseOptions = {},
+) {
   const containerRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<T>(null)
 
@@ -13,8 +26,10 @@ export function useDialogClose<T extends HTMLElement = HTMLElement>(onClose: () 
   // steals focus back to the close button — e.g. out of the search
   // input whenever a debounced query commits while a detail is open.
   const onCloseRef = useRef(onClose)
+  const trapFocusRef = useRef(trapFocus)
   useEffect(() => {
     onCloseRef.current = onClose
+    trapFocusRef.current = trapFocus
   })
 
   useEffect(() => {
@@ -30,7 +45,7 @@ export function useDialogClose<T extends HTMLElement = HTMLElement>(onClose: () 
         return
       }
 
-      if (e.key !== 'Tab' || !containerRef.current) return
+      if (!trapFocusRef.current || e.key !== 'Tab' || !containerRef.current) return
 
       const focusable = Array.from(containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
       if (focusable.length === 0) return

@@ -24,9 +24,15 @@ interface MapViewProps {
      treated as obstructing the viewport when centering a pin. */
   isMobile?: boolean
   /* Show/hide the subway station layer — a map display toggle from
-     the filters panel, unrelated to POPS space filtering. */
+     the settings panel, unrelated to POPS space filtering. */
   showTransit: boolean
 }
+
+// Each station is a live DOM marker, and there are 445 of them — far
+// too many to keep mounted at borough-wide zooms (where they'd be
+// unreadable clutter anyway). Below this zoom none render; above it,
+// only the ones near the current view do.
+const TRANSIT_MIN_ZOOM = 13
 
 export function MapView({
   spaces,
@@ -53,6 +59,40 @@ export function MapView({
   useEffect(() => {
     if (!showTransit) setActiveStationId(null)
   }, [showTransit])
+
+  const [visibleStations, setVisibleStations] = useState<typeof subwayStations>([])
+  const updateVisibleStations = () => {
+    const map = mapRef.current
+    if (!map) return
+    if (map.getZoom() < TRANSIT_MIN_ZOOM) {
+      setVisibleStations((prev) => (prev.length === 0 ? prev : []))
+      return
+    }
+    // Pad by half a viewport per side so stations just offscreen are
+    // already mounted when a small pan brings them into view.
+    const bounds = map.getBounds()
+    const sw = bounds.getSouthWest()
+    const ne = bounds.getNorthEast()
+    const padLng = (ne.lng - sw.lng) / 2
+    const padLat = (ne.lat - sw.lat) / 2
+    setVisibleStations(
+      subwayStations.filter(
+        (station) =>
+          station.lng >= sw.lng - padLng &&
+          station.lng <= ne.lng + padLng &&
+          station.lat >= sw.lat - padLat &&
+          station.lat <= ne.lat + padLat,
+      ),
+    )
+  }
+
+  // If the active station's dot zoomed/panned out of the rendered
+  // set, its popup shouldn't stay floating over the map alone.
+  useEffect(() => {
+    if (activeStationId && !visibleStations.some((s) => s.id === activeStationId)) {
+      setActiveStationId(null)
+    }
+  }, [visibleStations, activeStationId])
 
   // "Highlight on map" should visibly highlight the pin, not just
   // recenter on it (recentering alone already happens on selection,
@@ -88,7 +128,7 @@ export function MapView({
     if (!selectedCoords) return
     const rootStyle = getComputedStyle(document.documentElement)
     // --mobile-sheet-height is published by MobileSheet with its exact
-    // current on-screen height (peeked or full, default or dragged) —
+    // current on-screen height (default or dragged) —
     // reads as 0 whenever no sheet is mounted, so this doubles as the
     // "is anything covering the bottom of the map" check.
     const topbarHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--app-header-height')) || 0 : 0
@@ -123,6 +163,8 @@ export function MapView({
       mapStyle={MAP_STYLE_URL}
       style={{ width: '100%', height: '100%' }}
       attributionControl={false}
+      onLoad={updateVisibleStations}
+      onMoveEnd={updateVisibleStations}
       onClick={() => {
         onDeselect()
         setActiveStationId(null)
@@ -130,7 +172,7 @@ export function MapView({
     >
       <NavigationControl position="bottom-right" />
       {showTransit &&
-        subwayStations.map((station) => (
+        visibleStations.map((station) => (
           <Marker key={station.id} longitude={station.lng} latitude={station.lat} anchor="center">
             <TransitMarker
               label={station.name}
