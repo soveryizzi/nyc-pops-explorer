@@ -12,9 +12,13 @@ interface AppHeaderProps {
   /* Clears filters/search/selection AND recenters the map — owned by
      the parent since AppHeader has no map reference of its own. */
   onReset: () => void
+  /* Subway station layer visibility — a map display toggle, not a
+     POPS space filter, so it isn't part of the URL-driven FilterState. */
+  showTransit: boolean
+  onToggleTransit: (show: boolean) => void
 }
 
-export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderProps) {
+export function AppHeader({ filters, update, resultCount, onReset, showTransit, onToggleTransit }: AppHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -145,7 +149,12 @@ export function AppHeader({ filters, update, resultCount, onReset }: AppHeaderPr
       </div>
       <div id="filters-panel" className="app-header__panel" data-open={filtersOpen} inert={!filtersOpen}>
         <div className="app-header__panel-inner">
-          <FilterPanel filters={filters} update={update} />
+          <FilterPanel
+            filters={filters}
+            update={update}
+            showTransit={showTransit}
+            onToggleTransit={onToggleTransit}
+          />
         </div>
       </div>
       <div id="feedback-panel" className="app-header__panel" data-open={feedbackOpen} inert={!feedbackOpen}>

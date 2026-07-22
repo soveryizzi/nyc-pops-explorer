@@ -34,6 +34,7 @@
 .app-header__clear:focus-visible,
 .app-header__done:focus-visible,
 .app-header__title-button:focus-visible,
+.filter-checkbox input:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -54,7 +55,8 @@ a:focus-visible {
 .app-header .search-bar__clear:focus-visible,
 .app-header .app-header__clear:focus-visible,
 .app-header .app-header__done:focus-visible,
-.app-header .app-header__title-button:focus-visible {
+.app-header .app-header__title-button:focus-visible,
+.app-header .filter-checkbox input:focus-visible {
   outline-color: var(--color-on-primary);
 }
 
@@ -68,6 +70,8 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-full);
   font-family: var(--font-sans);
@@ -127,6 +131,10 @@ a:focus-visible {
 /* Filter chips — these only appear inside the green header, so they
    are styled as on-primary: outlined cream when idle, honey when on. */
 .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);
   border: 1.5px solid var(--on-primary-outline);
@@ -179,12 +187,14 @@ a:focus-visible {
 }
 
 /* Reset-to-default control, styled to read as plain title text —
-   a subtle hover/active dip is the only affordance it's clickable. */
+   a subtle hover/active dip is the only affordance it's clickable.
+   Padding + a matching negative margin grow the tap target to 44px
+   without shifting where the text itself sits in the layout. */
 .app-header__title-button {
   border: none;
   background: none;
-  padding: 0;
-  margin: 0;
+  padding: var(--space-2) 0;
+  margin: calc(-1 * var(--space-2)) 0;
   font: inherit;
   color: inherit;
   cursor: pointer;
@@ -213,15 +223,15 @@ a:focus-visible {
 }
 
 .app-header__icons {
-  height: 100%;
+  min-height: var(--touch-target);
   align-items: center;
 }
 
 .icon-button {
   position: relative;
-  width: 36px;
-  min-width: 36px;
-  height: 100%;
+  width: var(--touch-target);
+  min-width: var(--touch-target);
+  height: var(--touch-target);
   border-radius: var(--radius-md);
   border: none;
   background: var(--on-primary-veil);
@@ -231,6 +241,7 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 0;
+  aspect-ratio: 1 / 1;
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease),
     color var(--motion-duration-fast) var(--motion-ease);
@@ -331,6 +342,10 @@ a:focus-visible {
 }
 
 .app-header__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
   border: 2px solid var(--color-accent);
   border-radius: var(--radius-full);
   background: transparent;
@@ -348,6 +363,10 @@ a:focus-visible {
 }
 
 .app-header__done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
   border: none;
   border-radius: var(--radius-full);
   padding: var(--space-2) var(--space-5);
@@ -505,7 +524,12 @@ a:focus-visible {
 
 .search-bar__clear {
   position: absolute;
-  right: var(--space-2);
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
   border: none;
   background: transparent;
   font-size: var(--type-size-lg);
@@ -536,10 +560,46 @@ a:focus-visible {
   padding: 0 0 var(--space-2);
 }
 
+.filter-panel__row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-4);
+}
+
+.filter-group--half {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-panel__divider {
+  width: 1px;
+  flex-shrink: 0;
+  background: var(--on-primary-outline);
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+  cursor: pointer;
+}
+
+.filter-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
 }
 
 /* Result list + cards — cards float directly over the map, flush
@@ -587,10 +647,13 @@ a:focus-visible {
   color: var(--color-ink-soft);
 }
 
+/* -100% (a full card-width, not a small nudge) — matches the entrance
+   from the v1 version, which slid each card in fully from off-screen
+   rather than just nudging it into place. */
 @keyframes card-slide-in {
   from {
     opacity: 0;
-    transform: translateX(-16px);
+    transform: translateX(-100%);
   }
   to {
     opacity: 1;
@@ -599,10 +662,8 @@ a:focus-visible {
 }
 
 /* Exit starts from the card's resting look (not slide-in's 0%), since
-   the card is already fully visible when closing begins. -28px (vs.
-   slide-in's -16px) so the motion reads clearly at this short a
-   duration — 16px was getting lost, especially once the (now-removed)
-   competing container fade was masking it too. */
+   the card is already fully visible when closing begins. Mirrors the
+   entrance's full card-width distance for a consistent feel. */
 @keyframes card-slide-out {
   from {
     opacity: 1;
@@ -610,7 +671,7 @@ a:focus-visible {
   }
   to {
     opacity: 0;
-    transform: translateX(-28px);
+    transform: translateX(-100%);
   }
 }
 
@@ -629,8 +690,11 @@ a:focus-visible {
   cursor: pointer;
   /* Entrance files in top-to-bottom (delay set per-card via inline
      style). Exit reverses the order and is deliberately much shorter
-     so closing the list never feels like a wait. */
-  animation: card-slide-in 0.22s var(--motion-ease-spring) both;
+     so closing the list never feels like a wait. Plain --motion-ease
+     (not the spring), matching the v1 version's smooth, non-bouncy
+     slide — a card is a heavier visual body sliding a full card-width;
+     the spring's overshoot read as bouncy in a way that didn't suit it. */
+  animation: card-slide-in 0.22s var(--motion-ease) both;
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease),
     box-shadow var(--motion-duration-fast) var(--motion-ease);
@@ -713,6 +777,26 @@ a:focus-visible {
 /* Map markers — hovering a result card highlights its pin (and the
    pin's own hover mirrors back to the card via data-hovered). */
 
+/* MapLibre's own wrapper div around each marker defaults to
+   pointer-events: auto across its *entire* box, including the
+   transparent padding around the actual pin/dot shape — so whichever
+   marker's wrapper happens to paint on top (later in the DOM) can
+   intercept clicks meant for a different, nearby marker even where
+   the topmost one is visually empty. Turning that off and re-opting-in
+   only on the actual interactive button means hit-testing follows
+   each marker's own real (small) clickable shape instead of its
+   wrapper's bounding box — found via testing a subway station whose
+   wrapper overlapped a nearby POPS pin's wrapper closely enough to be
+   completely untappable otherwise. */
+.maplibregl-marker {
+  pointer-events: none;
+}
+
+.space-marker,
+.transit-marker {
+  pointer-events: auto;
+}
+
 .space-marker svg {
   transition: transform var(--motion-duration-fast) var(--motion-ease-spring);
   transform-origin: 50% 100%;
@@ -748,6 +832,90 @@ a:focus-visible {
   .space-marker[data-pulsing='true'] {
     animation: none;
   }
+}
+
+/* Subway stations — a quiet background reference layer, not a
+   primary CTA like the POPS markers, so it stays deliberately small.
+   The padding still gives it a real (if modest, not the full 44px
+   the app's actual CTAs use) tap allowance around the dot — going
+   all the way to 44px across 445 closely-spaced points would make
+   adjacent stations' tap zones overlap more than the small visual
+   dot justifies. */
+.transit-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Smaller than the app's other invisible-tap-target paddings on
+     purpose — found via testing that the touch-target-sized version
+     of this was wide enough to overlap a neighboring POPS pin's own
+     marker in dense areas, and since POPS markers paint after (on
+     top of) transit markers, the overlap made the station completely
+     untappable there. A tighter hitbox trades some tap forgiveness
+     for not colliding with the primary marker layer. */
+  padding: 3px;
+  margin: -3px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.transit-marker__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  opacity: 0.7;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition:
+    transform var(--motion-duration-fast) var(--motion-ease-spring),
+    opacity var(--motion-duration-fast) var(--motion-ease);
+}
+
+.transit-marker[data-active='true'] .transit-marker__dot {
+  transform: scale(1.6);
+  opacity: 1;
+}
+
+.transit-popup .maplibregl-popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.transit-popup__name {
+  font-family: var(--font-sans);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-semibold);
+  color: var(--color-surface);
+}
+
+.transit-popup__routes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 2px;
+  max-width: 160px;
+}
+
+.transit-popup__route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--type-weight-extrabold);
+  line-height: 1;
+}
+
+.transit-popup .maplibregl-popup-tip {
+  border-top-color: var(--color-ink);
 }
 
 /* Desktop sidebar — transparent column flush to the left edge; the
@@ -836,32 +1004,21 @@ a:focus-visible {
   z-index: var(--z-map-controls);
   display: flex;
   flex-direction: column;
-  animation: list-slide-in 0.24s var(--motion-ease-spring);
 }
 
-/* No container-level exit animation: the per-card reversed stagger
-   (see .space-card[data-closing]) is the only motion during close.
-   A previous version faded the whole container over 220ms with no
-   delay, which finished (and hid everything) right as the later
-   individual card animations were only just starting — the two
-   fades canceled each other out and it read as a plain fade with
-   no visible slide. The backdrop's own translucent tint is subtle
-   enough that its abrupt removal at unmount isn't noticeable once
-   the cards have already animated away. */
-
-@keyframes list-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-}
+/* No container-level animation on either end, entrance or exit — the
+   per-card horizontal stagger (see card-slide-in/out) is the only
+   motion, so the whole list reads as purely horizontal with no
+   vertical drift riding on top of it. (This also sidesteps the
+   competing-fades bug a previous container-level exit fade caused:
+   it finished, and hid everything, right as the later individual
+   card animations were only just starting.) */
 
 @media (prefers-reduced-motion: reduce) {
   .mobile-sheet,
   .mobile-sheet--closing,
   .mobile-sheet-backdrop,
-  .mobile-sheet-backdrop--closing,
-  .mobile-list {
+  .mobile-sheet-backdrop--closing {
     animation: none;
   }
 }
@@ -899,6 +1056,10 @@ a:focus-visible {
 }
 
 .view-toggle__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
   padding: var(--space-2) var(--space-5);
   border: none;
   background: transparent;
@@ -954,6 +1115,11 @@ a:focus-visible {
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   overflow-y: auto;
+  /* Without this, iOS's elastic rubber-band bounce lets the scroll
+     position go negative when you drag past the top, which briefly
+     reveals this container's own white background above the sticky
+     cap/header instead of scroll-chaining or just clamping. */
+  overscroll-behavior-y: contain;
   box-shadow: 0 -4px 20px rgba(27, 49, 35, 0.3);
   /* A gentler spring than --motion-ease-spring's 1.4 overshoot
      (scoped here, not changed globally — card entrance and other
@@ -1009,12 +1175,19 @@ a:focus-visible {
 }
 
 /* Grabber cap — colored to match the space-type header directly
-   below it, so the top of the sheet reads as one block. */
+   below it, so the top of the sheet reads as one block. Kept snug
+   (not the full 44px touch-target) since that much padding pushed
+   the header title too far below it — a compact grab handle in the
+   same family as iOS's own sheet grabber, not a standalone button. */
 .mobile-sheet__cap {
   position: sticky;
   top: 0;
-  z-index: 1;
-  padding: var(--space-2) 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) 0 var(--space-1);
+  box-sizing: border-box;
 }
 
 .mobile-sheet--outdoor .mobile-sheet__cap {
@@ -1026,7 +1199,7 @@ a:focus-visible {
 }
 
 .mobile-sheet__handle {
-  width: 36px;
+  width: 48px;
   height: 4px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.65);
@@ -1043,6 +1216,18 @@ a:focus-visible {
   color: var(--color-surface);
 }
 
+/* Inside the mobile sheet, the grabber cap is its own sticky element
+   sitting above this header in the same scroll container — both
+   targeting top:0 would fight over the same slot (whichever painted
+   last wins, so the cap effectively vanished, and touches meant for
+   the cap could land on the header instead). Offsetting by the cap's
+   real measured height (published by MobileSheet) makes them stack
+   correctly instead of competing. */
+.mobile-sheet .space-detail__header {
+  top: var(--mobile-sheet-cap-height, 16px);
+  padding-top: var(--space-2);
+}
+
 .space-detail__header--outdoor {
   background: var(--color-outdoor);
 }
@@ -1056,7 +1241,7 @@ a:focus-visible {
   font-family: var(--font-display);
   font-size: var(--type-size-lg);
   font-weight: var(--type-weight-extrabold);
-  padding-right: 40px;
+  padding-right: calc(var(--touch-target) + var(--space-2));
 }
 
 .space-detail__address {
@@ -1085,13 +1270,16 @@ a:focus-visible {
   top: var(--space-3);
   right: var(--space-3);
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
   border: none;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.25);
   color: var(--color-surface);
-  font-size: var(--type-size-base);
+  font-size: var(--type-size-lg);
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease);
 }
@@ -1140,6 +1328,7 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  min-height: var(--touch-target);
   padding: var(--space-3);
   border: none;
   background: none;
@@ -1503,8 +1692,8 @@ a:focus-visible {
   position: absolute;
   top: var(--space-3);
   right: var(--space-3);
-  width: 36px;
-  height: 36px;
+  width: var(--touch-target);
+  height: var(--touch-target);
   border: none;
   border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.5);
@@ -1517,8 +1706,8 @@ a:focus-visible {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: var(--touch-target);
+  height: var(--touch-target);
   border: none;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.9);

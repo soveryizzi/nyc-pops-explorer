@@ -39,6 +39,30 @@ export const AMENITIES = [
 
 export type AmenityKey = (typeof AMENITIES)[number]['id']
 
+// Official MTA subway line colors (per MTA branding guidelines) —
+// text color follows MTA's own bullet design: black on the lighter
+// yellow/grey lines, white everywhere else.
+const MTA_LINE_GROUPS: { routes: string[]; bg: string; text: string }[] = [
+  { routes: ['1', '2', '3'], bg: '#EE352E', text: '#ffffff' },
+  { routes: ['4', '5', '6', '6X'], bg: '#00933C', text: '#ffffff' },
+  { routes: ['7', '7X'], bg: '#B933AD', text: '#ffffff' },
+  { routes: ['A', 'C', 'E'], bg: '#0039A6', text: '#ffffff' },
+  { routes: ['B', 'D', 'F', 'M'], bg: '#FF6319', text: '#ffffff' },
+  { routes: ['G'], bg: '#6CBE45', text: '#ffffff' },
+  { routes: ['J', 'Z'], bg: '#996633', text: '#ffffff' },
+  { routes: ['L'], bg: '#A7A9AC', text: '#000000' },
+  { routes: ['N', 'Q', 'R', 'W'], bg: '#FCCC0A', text: '#000000' },
+  { routes: ['S'], bg: '#808183', text: '#ffffff' },
+]
+
+const ROUTE_COLORS = new Map(MTA_LINE_GROUPS.flatMap((group) => group.routes.map((route) => [route, group])))
+
+const DEFAULT_ROUTE_COLOR = { bg: '#6E6E6E', text: '#ffffff' }
+
+export function routeColor(route: string): { bg: string; text: string } {
+  return ROUTE_COLORS.get(route) ?? DEFAULT_ROUTE_COLOR
+}
+
 export const INDOOR_KEYWORDS = [
   'atrium',
   'arcade',

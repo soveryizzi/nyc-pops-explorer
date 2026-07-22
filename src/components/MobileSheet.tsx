@@ -58,6 +58,22 @@ export function MobileSheet({
     }
   }, [])
 
+  // Publish the cap's real height so the header below it (sticky in
+  // the same scroll container — see the CSS comment on
+  // .mobile-sheet .space-detail__header) can offset its own sticky
+  // top by exactly that much instead of competing for the same
+  // top:0 slot. useLayoutEffect so the var is set before first paint,
+  // not after a frame of both elements stuck at top:0.
+  useLayoutEffect(() => {
+    const cap = capRef.current
+    if (!cap) return
+    const publish = () => document.documentElement.style.setProperty('--mobile-sheet-cap-height', `${cap.offsetHeight}px`)
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(cap)
+    return () => observer.disconnect()
+  }, [])
+
   // Measure the colored header bar (rendered by the child SpaceDetail)
   // so the peeked height matches it exactly — no hardcoded constant,
   // so long space names that wrap to two lines still fit.

@@ -218,23 +218,6 @@
       }
     },
     {
-      "id": "landuse_hospital",
-      "type": "fill",
-      "source": "openmaptiles",
-      "source-layer": "landuse",
-      "filter": [
-        "==",
-        [
-          "get",
-          "class"
-        ],
-        "hospital"
-      ],
-      "paint": {
-        "fill-color": "#d8e5cc"
-      }
-    },
-    {
       "id": "landuse_school",
       "type": "fill",
       "source": "openmaptiles",
@@ -4092,206 +4075,6 @@
       }
     },
     {
-      "id": "waterway_line_label",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "waterway",
-      "minzoom": 10,
-      "filter": [
-        "match",
-        [
-          "geometry-type"
-        ],
-        [
-          "LineString",
-          "MultiLineString"
-        ],
-        true,
-        false
-      ],
-      "layout": {
-        "symbol-placement": "line",
-        "symbol-spacing": 350,
-        "text-field": [
-          "case",
-          [
-            "has",
-            "name:nonlatin"
-          ],
-          [
-            "concat",
-            [
-              "get",
-              "name:latin"
-            ],
-            " ",
-            [
-              "get",
-              "name:nonlatin"
-            ]
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "name_en"
-            ],
-            [
-              "get",
-              "name"
-            ]
-          ]
-        ],
-        "text-font": [
-          "Noto Sans Italic"
-        ],
-        "text-letter-spacing": 0.2,
-        "text-max-width": 5,
-        "text-size": 14
-      },
-      "paint": {
-        "text-color": "#74aee9",
-        "text-halo-color": "rgba(255,255,255,0.7)",
-        "text-halo-width": 1.5
-      }
-    },
-    {
-      "id": "water_name_point_label",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "water_name",
-      "filter": [
-        "match",
-        [
-          "geometry-type"
-        ],
-        [
-          "MultiPoint",
-          "Point"
-        ],
-        true,
-        false
-      ],
-      "layout": {
-        "text-field": [
-          "case",
-          [
-            "has",
-            "name:nonlatin"
-          ],
-          [
-            "concat",
-            [
-              "get",
-              "name:latin"
-            ],
-            "\n",
-            [
-              "get",
-              "name:nonlatin"
-            ]
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "name_en"
-            ],
-            [
-              "get",
-              "name"
-            ]
-          ]
-        ],
-        "text-font": [
-          "Noto Sans Italic"
-        ],
-        "text-letter-spacing": 0.2,
-        "text-max-width": 5,
-        "text-size": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          0,
-          10,
-          8,
-          14
-        ]
-      },
-      "paint": {
-        "text-color": "#495e91",
-        "text-halo-color": "rgba(255,255,255,0.7)",
-        "text-halo-width": 1.5
-      }
-    },
-    {
-      "id": "water_name_line_label",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "water_name",
-      "filter": [
-        "match",
-        [
-          "geometry-type"
-        ],
-        [
-          "LineString",
-          "MultiLineString"
-        ],
-        true,
-        false
-      ],
-      "layout": {
-        "symbol-placement": "line",
-        "symbol-spacing": 350,
-        "text-field": [
-          "case",
-          [
-            "has",
-            "name:nonlatin"
-          ],
-          [
-            "concat",
-            [
-              "get",
-              "name:latin"
-            ],
-            " ",
-            [
-              "get",
-              "name:nonlatin"
-            ]
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "name_en"
-            ],
-            [
-              "get",
-              "name"
-            ]
-          ]
-        ],
-        "text-font": [
-          "Noto Sans Italic"
-        ],
-        "text-letter-spacing": 0.2,
-        "text-max-width": 5,
-        "text-size": 14
-      },
-      "paint": {
-        "text-color": "#495e91",
-        "text-halo-color": "rgba(255,255,255,0.7)",
-        "text-halo-width": 1.5
-      }
-    },
-    {
       "id": "poi_r20",
       "type": "symbol",
       "source": "openmaptiles",
@@ -4300,24 +4083,59 @@
       "filter": [
         "all",
         [
-          "match",
+          "all",
           [
-            "geometry-type"
+            "match",
+            [
+              "geometry-type"
+            ],
+            [
+              "MultiPoint",
+              "Point"
+            ],
+            true,
+            false
           ],
           [
-            "MultiPoint",
-            "Point"
-          ],
-          true,
-          false
+            ">=",
+            [
+              "get",
+              "rank"
+            ],
+            20
+          ]
         ],
         [
-          ">=",
+          "!=",
           [
             "get",
-            "rank"
+            "class"
           ],
-          20
+          "hospital"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "rail"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "bus"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "airport"
         ]
       ],
       "layout": {
@@ -4397,32 +4215,67 @@
       "filter": [
         "all",
         [
-          "match",
+          "all",
           [
-            "geometry-type"
+            "match",
+            [
+              "geometry-type"
+            ],
+            [
+              "MultiPoint",
+              "Point"
+            ],
+            true,
+            false
           ],
           [
-            "MultiPoint",
-            "Point"
+            ">=",
+            [
+              "get",
+              "rank"
+            ],
+            7
           ],
-          true,
-          false
+          [
+            "<",
+            [
+              "get",
+              "rank"
+            ],
+            20
+          ]
         ],
         [
-          ">=",
+          "!=",
           [
             "get",
-            "rank"
+            "class"
           ],
-          7
+          "hospital"
         ],
         [
-          "<",
+          "!=",
           [
             "get",
-            "rank"
+            "class"
           ],
-          20
+          "rail"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "bus"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "airport"
         ]
       ],
       "layout": {
@@ -4502,32 +4355,67 @@
       "filter": [
         "all",
         [
-          "match",
+          "all",
           [
-            "geometry-type"
+            "match",
+            [
+              "geometry-type"
+            ],
+            [
+              "MultiPoint",
+              "Point"
+            ],
+            true,
+            false
           ],
           [
-            "MultiPoint",
-            "Point"
+            ">=",
+            [
+              "get",
+              "rank"
+            ],
+            1
           ],
-          true,
-          false
+          [
+            "<",
+            [
+              "get",
+              "rank"
+            ],
+            7
+          ]
         ],
         [
-          ">=",
+          "!=",
           [
             "get",
-            "rank"
+            "class"
           ],
-          1
+          "hospital"
         ],
         [
-          "<",
+          "!=",
           [
             "get",
-            "rank"
+            "class"
           ],
-          7
+          "rail"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "bus"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "class"
+          ],
+          "airport"
         ]
       ],
       "layout": {
@@ -4588,82 +4476,6 @@
         "text-offset": [
           0,
           0.6
-        ],
-        "text-size": 12
-      },
-      "paint": {
-        "text-color": "#47523f",
-        "text-halo-blur": 0.5,
-        "text-halo-color": "#f4f2e6",
-        "text-halo-width": 1
-      }
-    },
-    {
-      "id": "poi_transit",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "poi",
-      "filter": [
-        "match",
-        [
-          "get",
-          "class"
-        ],
-        [
-          "airport",
-          "bus",
-          "rail"
-        ],
-        true,
-        false
-      ],
-      "layout": {
-        "icon-image": [
-          "to-string",
-          [
-            "get",
-            "class"
-          ]
-        ],
-        "icon-size": 0.7,
-        "text-anchor": "left",
-        "text-field": [
-          "case",
-          [
-            "has",
-            "name:nonlatin"
-          ],
-          [
-            "concat",
-            [
-              "get",
-              "name:latin"
-            ],
-            "\n",
-            [
-              "get",
-              "name:nonlatin"
-            ]
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "name_en"
-            ],
-            [
-              "get",
-              "name"
-            ]
-          ]
-        ],
-        "text-font": [
-          "Noto Sans Italic"
-        ],
-        "text-max-width": 9,
-        "text-offset": [
-          0.9,
-          0
         ],
         "text-size": 12
       },
@@ -5153,72 +4965,6 @@
         ],
         "text-rotation-alignment": "viewport",
         "text-size": 10
-      }
-    },
-    {
-      "id": "airport",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "aerodrome_label",
-      "minzoom": 10,
-      "filter": [
-        "all",
-        [
-          "has",
-          "iata"
-        ]
-      ],
-      "layout": {
-        "icon-image": "airport_11",
-        "icon-size": 1,
-        "text-anchor": "top",
-        "text-field": [
-          "case",
-          [
-            "has",
-            "name:nonlatin"
-          ],
-          [
-            "concat",
-            [
-              "get",
-              "name:latin"
-            ],
-            "\n",
-            [
-              "get",
-              "name:nonlatin"
-            ]
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "name_en"
-            ],
-            [
-              "get",
-              "name"
-            ]
-          ]
-        ],
-        "text-font": [
-          "Noto Sans Regular"
-        ],
-        "text-max-width": 9,
-        "text-offset": [
-          0,
-          0.6
-        ],
-        "text-optional": true,
-        "text-padding": 2,
-        "text-size": 12
-      },
-      "paint": {
-        "text-color": "#47523f",
-        "text-halo-blur": 0.5,
-        "text-halo-color": "#f4f2e6",
-        "text-halo-width": 1
       }
     },
     {

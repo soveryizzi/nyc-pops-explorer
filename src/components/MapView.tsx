@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre'
+import Map, { Marker, NavigationControl, Popup, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { INITIAL_VIEW_STATE, MAP_STYLE_URL } from '../lib/constants'
+import subwayStations from '../data/subway-stations-snapshot.json'
+import { INITIAL_VIEW_STATE, MAP_STYLE_URL, routeColor } from '../lib/constants'
 import type { PopsSpace } from '../lib/resolvers'
 import { SpaceMarker } from './SpaceMarker'
+import { TransitMarker } from './TransitMarker'
 
 interface MapViewProps {
   spaces: PopsSpace[]
@@ -21,6 +23,9 @@ interface MapViewProps {
   /* Whether the mobile top bar / bottom sheet chrome should be
      treated as obstructing the viewport when centering a pin. */
   isMobile?: boolean
+  /* Show/hide the subway station layer — a map display toggle from
+     the filters panel, unrelated to POPS space filtering. */
+  showTransit: boolean
 }
 
 export function MapView({
@@ -33,10 +38,21 @@ export function MapView({
   focusToken,
   resetToken,
   isMobile,
+  showTransit,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
   const selectedCoords = selectedId ? spaces.find((s) => s.id === selectedId)?.coordinates ?? null : null
+
+  // Subway station labels: tap a dot to show its name, tap the dot
+  // again or anywhere else on the map to hide it — independent of
+  // POPS selection, so it doesn't touch the URL/filter state.
+  const [activeStationId, setActiveStationId] = useState<string | null>(null)
+  const activeStation = subwayStations.find((s) => s.id === activeStationId) ?? null
+
+  useEffect(() => {
+    if (!showTransit) setActiveStationId(null)
+  }, [showTransit])
 
   // "Highlight on map" should visibly highlight the pin, not just
   // recenter on it (recentering alone already happens on selection,
@@ -107,9 +123,52 @@ export function MapView({
       mapStyle={MAP_STYLE_URL}
       style={{ width: '100%', height: '100%' }}
       attributionControl={false}
-      onClick={onDeselect}
+      onClick={() => {
+        onDeselect()
+        setActiveStationId(null)
+      }}
     >
       <NavigationControl position="bottom-right" />
+      {showTransit &&
+        subwayStations.map((station) => (
+          <Marker key={station.id} longitude={station.lng} latitude={station.lat} anchor="center">
+            <TransitMarker
+              label={station.name}
+              active={station.id === activeStationId}
+              onClick={() => setActiveStationId((prev) => (prev === station.id ? null : station.id))}
+            />
+          </Marker>
+        ))}
+      {showTransit && activeStation && (
+        <Popup
+          longitude={activeStation.lng}
+          latitude={activeStation.lat}
+          anchor="bottom"
+          offset={14}
+          closeButton={false}
+          closeOnClick={false}
+          onClose={() => setActiveStationId(null)}
+          className="transit-popup"
+        >
+          <span className="transit-popup__name">{activeStation.name}</span>
+          {activeStation.routes.length > 0 && (
+            <span className="transit-popup__routes">
+              {activeStation.routes.map((route) => {
+                const { bg, text } = routeColor(route)
+                return (
+                  <span
+                    key={route}
+                    className="transit-popup__route"
+                    style={{ background: bg, color: text }}
+                  >
+                    {route}
+                  </span>
+                )
+              })}
+            </span>
+          )}
+        </Popup>
+      )}
       {mappable.map((space) => (
         <Marker
           key={space.id}

@@ -22,6 +22,7 @@ function App() {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [focusToken, setFocusToken] = useState(0)
   const [resetToken, setResetToken] = useState(0)
+  const [showTransit, setShowTransit] = useState(true)
 
   const selected = spaces.find((space) => space.id === filters.space) ?? null
 
@@ -64,6 +65,7 @@ function App() {
           focusToken={focusToken}
           resetToken={resetToken}
           isMobile={isMobile}
+          showTransit={showTransit}
         />
       </main>
 
@@ -77,6 +79,8 @@ function App() {
           onSelect={handleSelect}
           onHover={setHoveredId}
           onReset={handleReset}
+          showTransit={showTransit}
+          onToggleTransit={setShowTransit}
         />
       )}
 
@@ -89,7 +93,14 @@ function App() {
       {isMobile && (
         <>
           <header className="mobile-topbar">
-            <AppHeader filters={filters} update={update} resultCount={filteredSpaces.length} onReset={handleReset} />
+            <AppHeader
+              filters={filters}
+              update={update}
+              resultCount={filteredSpaces.length}
+              onReset={handleReset}
+              showTransit={showTransit}
+              onToggleTransit={setShowTransit}
+            />
           </header>
 
           {list.shown && (

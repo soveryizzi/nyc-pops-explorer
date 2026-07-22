@@ -104,6 +104,9 @@
   --type-leading-tight: 1.2;
   --type-leading-normal: 1.5;
 
+   /* Recommended minimum touch target size (Apple HIG / WCAG) */
+   --touch-target: 44px;
+
   /* Motion — spring ease reserved for movement (transforms), the
      standard ease for color/opacity so overshoot never hits paint. */
   --motion-duration-fast: 150ms;

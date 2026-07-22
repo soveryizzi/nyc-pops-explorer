@@ -4,6 +4,8 @@ import type { FilterState, TypeFilter, UseUrlStateResult } from '../hooks/useUrl
 interface FilterPanelProps {
   filters: FilterState
   update: UseUrlStateResult['update']
+  showTransit: boolean
+  onToggleTransit: (show: boolean) => void
 }
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -26,7 +28,7 @@ function Chip({
   )
 }
 
-export function FilterPanel({ filters, update }: FilterPanelProps) {
+export function FilterPanel({ filters, update, showTransit, onToggleTransit }: FilterPanelProps) {
   return (
     <div className="filter-panel">
       <fieldset className="filter-group">
@@ -43,35 +45,39 @@ export function FilterPanel({ filters, update }: FilterPanelProps) {
         </div>
       </fieldset>
 
-      <fieldset className="filter-group">
-        <legend>Type</legend>
-        <div className="chip-row">
-          {(['outdoor', 'indoor'] as TypeFilter[]).map((type) => (
-            <Chip
-              key={type}
-              label={type === 'outdoor' ? 'Outdoors' : 'Indoors'}
-              pressed={filters.type.includes(type)}
-              onClick={() => update({ type: toggle(filters.type, type) }, { push: true })}
-            />
-          ))}
-        </div>
-      </fieldset>
+      <div className="filter-panel__row">
+        <fieldset className="filter-group filter-group--half">
+          <legend>Type</legend>
+          <div className="chip-row">
+            {(['outdoor', 'indoor'] as TypeFilter[]).map((type) => (
+              <Chip
+                key={type}
+                label={type === 'outdoor' ? 'Outdoors' : 'Indoors'}
+                pressed={filters.type.includes(type)}
+                onClick={() => update({ type: toggle(filters.type, type) }, { push: true })}
+              />
+            ))}
+          </div>
+        </fieldset>
 
-      <fieldset className="filter-group">
-        <legend>Accessibility</legend>
-        <div className="chip-row">
-          {/* NYC's dataset never reports "full" and "partial" ADA
-              access as distinct values in practice — every accessible
-              record comes through as "Full/Partial" (see resolveAda),
-              so a two-chip Full/Some split always left one chip
-              permanently empty. One chip matching either status. */}
-          <Chip
-            label="♿ Accessible"
-            pressed={filters.ada.length > 0}
-            onClick={() => update({ ada: filters.ada.length > 0 ? [] : ['full', 'partial'] }, { push: true })}
-          />
-        </div>
-      </fieldset>
+        <div className="filter-panel__divider" aria-hidden="true" />
+
+        <fieldset className="filter-group filter-group--half">
+          <legend>Accessibility</legend>
+          <div className="chip-row">
+            {/* NYC's dataset never reports "full" and "partial" ADA
+                access as distinct values in practice — every accessible
+                record comes through as "Full/Partial" (see resolveAda),
+                so a two-chip Full/Some split always left one chip
+                permanently empty. One chip matching either status. */}
+            <Chip
+              label="♿ Accessible"
+              pressed={filters.ada.length > 0}
+              onClick={() => update({ ada: filters.ada.length > 0 ? [] : ['full', 'partial'] }, { push: true })}
+            />
+          </div>
+        </fieldset>
+      </div>
 
       <fieldset className="filter-group">
         <legend>Amenities</legend>
@@ -85,6 +91,20 @@ export function FilterPanel({ filters, update }: FilterPanelProps) {
             />
           ))}
         </div>
+      </fieldset>
+
+      {/* A map display toggle, not a POPS filter — doesn't affect the
+          result list/count, just whether the subway layer is drawn. */}
+      <fieldset className="filter-group">
+        <legend>Map</legend>
+        <label className="filter-checkbox">
+          <input
+            type="checkbox"
+            checked={showTransit}
+            onChange={(e) => onToggleTransit(e.target.checked)}
+          />
+          Show train stations
+        </label>
       </fieldset>
     </div>
   )
