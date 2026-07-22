@@ -52,7 +52,18 @@ function App() {
   const sheet = useLingering(isMobile ? selected : null, 340)
   const list = useLingering(isMobile && mobileView === 'list' ? ('list' as const) : null, 240)
 
-  const handleSelect = (id: string) => update({ space: id }, { push: true })
+  // Selecting while a mobile header panel is open: close the panel
+  // first and hold the selection until its 250ms collapse finishes,
+  // so the panel folding and the sheet springing up read as a
+  // sequence instead of two overlapping animations.
+  const handleSelect = (id: string) => {
+    if (isMobile && headerPanelOpen) {
+      setHeaderCloseToken((t) => t + 1)
+      window.setTimeout(() => update({ space: id }, { push: true }), 280)
+      return
+    }
+    update({ space: id }, { push: true })
+  }
   const handleDeselect = () => update({ space: null }, { push: true })
 
   // MapView calls onDeselect only for taps on empty map — the one
@@ -74,7 +85,7 @@ function App() {
   // what's on screen, so a plain re-center is enough — see MapView's
   // own selectedCoords effect.)
   const handleSelectFromList = (id: string) => {
-    update({ space: id }, { push: true })
+    handleSelect(id)
     setMobileView('map')
     setFocusToken((t) => t + 1)
   }

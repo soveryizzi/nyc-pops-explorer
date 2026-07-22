@@ -86,12 +86,7 @@ export function MobileSheet({ children, tone, closing = false }: MobileSheetProp
   return (
     <div
       className={`mobile-sheet mobile-sheet--${tone}${closing ? ' mobile-sheet--closing' : ''}`}
-      style={{
-        height: `${height}px`,
-        // Free-drag tracking must follow the pointer 1:1 — suppress
-        // the CSS height transition while actively dragging.
-        transition: dragging.current ? 'none' : undefined,
-      }}
+      style={{ height: `${height}px` }}
     >
       <div
         ref={capRef}

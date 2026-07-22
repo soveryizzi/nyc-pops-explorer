@@ -743,14 +743,14 @@ a:focus-visible {
      (not the spring), matching the v1 version's smooth, non-bouncy
      slide — a card is a heavier visual body sliding a full card-width;
      the spring's overshoot read as bouncy in a way that didn't suit it. */
-  animation: card-slide-in 0.22s var(--motion-ease) both;
+  animation: card-slide-in var(--motion-duration-enter) var(--motion-ease) both;
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease),
     box-shadow var(--motion-duration-fast) var(--motion-ease);
 }
 
 .space-card[data-closing='true'] {
-  animation: card-slide-out 0.16s var(--motion-ease) forwards;
+  animation: card-slide-out var(--motion-duration-exit) var(--motion-ease) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -862,7 +862,7 @@ a:focus-visible {
 /* "Highlight on map" — a brief ring pulse so the action reads as
    distinct from the recentering that already happens on selection. */
 .space-marker[data-pulsing='true'] {
-  animation: marker-pulse 0.9s var(--motion-ease);
+  animation: marker-pulse var(--motion-duration-pulse) var(--motion-ease);
 }
 
 @keyframes marker-pulse {
@@ -1148,19 +1148,11 @@ a:focus-visible {
      background above the sticky cap/header. */
   overscroll-behavior-y: none;
   box-shadow: var(--shadow-sheet);
-  /* A gentler spring than --motion-ease-spring's 1.4 overshoot
-     (scoped here, not changed globally — card entrance and other
-     spots still want the punchier version) — enough bounce to feel
-     alive without the sheet visibly overshooting past its resting
-     position. */
-  animation: sheet-slide-up 0.42s cubic-bezier(0.34, 1.15, 0.64, 1);
-  /* The component sets an inline transition:none while the cap is
-     actively being dragged, so free-drag tracking stays 1:1. */
-  transition: height 0.28s var(--motion-ease-spring);
+  animation: sheet-slide-up var(--motion-duration-sheet-in) var(--motion-ease-sheet);
 }
 
 .mobile-sheet--closing {
-  animation: sheet-bounce-out 0.32s forwards;
+  animation: sheet-bounce-out var(--motion-duration-sheet-out) var(--motion-ease) forwards;
 }
 
 @keyframes sheet-slide-up {

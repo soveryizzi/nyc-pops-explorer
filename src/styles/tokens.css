@@ -106,12 +106,22 @@
 
   /* Motion — spring ease reserved for movement (transforms), the
      standard ease for color/opacity so overshoot never hits paint.
-     (The mobile sheet's entrance/exit timings are deliberate one-offs,
-     commented at their rules in components.css.) */
+     Entrances linger, exits hurry. JS timings couple to these:
+     App.tsx's useLingering windows (340ms sheet, 240ms list) must
+     outlast the exit durations, and MapView's pulse timeout matches
+     --motion-duration-pulse. */
   --motion-duration-fast: 150ms;
   --motion-duration-med: 250ms;
+  --motion-duration-enter: 220ms;
+  --motion-duration-exit: 160ms;
+  --motion-duration-sheet-in: 420ms;
+  --motion-duration-sheet-out: 320ms;
+  --motion-duration-pulse: 900ms;
   --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
+  /* Gentler than --motion-ease-spring's 1.4 overshoot — the sheet is
+     too big an element to visibly overshoot its resting position. */
+  --motion-ease-sheet: cubic-bezier(0.34, 1.15, 0.64, 1);
 
   /* Elevation — ink-tinted so shadows read botanical, not sooty.
      card < float < lift; the sheet's is directional (upward). The
@@ -147,5 +157,10 @@
   :root {
     --motion-duration-fast: 0ms;
     --motion-duration-med: 0ms;
+    --motion-duration-enter: 0ms;
+    --motion-duration-exit: 0ms;
+    --motion-duration-sheet-in: 0ms;
+    --motion-duration-sheet-out: 0ms;
+    --motion-duration-pulse: 0ms;
   }
 }
