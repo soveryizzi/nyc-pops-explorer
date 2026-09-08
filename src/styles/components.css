@@ -1149,10 +1149,76 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-/* Locate-me control — a branded pill (rounded, shadowed, like the
-   view toggle) sitting deliberately apart from the plain square
-   maplibre zoom buttons it shares the corner with: a pill reads as
-   an intentional app action, not a neutral map utility. */
+/* Zoom + compass — maplibre's stock control, restyled to the Field
+   Guide system: card surface/shadow/radius tokens, touch-target-sized
+   buttons, and the app's ink/border palette instead of maplibre's
+   defaults (white/#ddd/black-on-white icons, 29px buttons, a plain
+   #0096ff focus ring). The icon SVGs are maplibre's own paths with
+   just the fill color swapped — background-image can't take a CSS
+   var(), so --color-primary/--green-100 are hardcoded here and must
+   stay in sync with tokens.css by hand (this app has one fixed
+   palette, no theme toggle, so that's a one-time cost, not upkeep).
+
+   Everything here is scoped under the real ancestor chain
+   .app-main .maplibregl-ctrl-bottom-right, not just the control's own
+   class: maplibre-gl.css is imported by MapView, a descendant of App,
+   so its <style> tag lands after this file's in the document — with
+   equal specificity, source order alone would let maplibre's own
+   rules keep winning (confirmed empirically: several of maplibre's
+   selectors here already carry 2-3 classes of their own, e.g.
+   `.maplibregl-ctrl-group:not(:empty)` and
+   `.maplibregl-ctrl button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon`).
+   Two extra ancestor classes reliably outrank those without
+   resorting to !important. */
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:hover {
+  background-color: var(--color-surface-mint);
+}
+
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--color-border);
+}
+
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+  background-size: var(--type-size-lg) var(--type-size-lg);
+}
+
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:focus,
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:focus:first-child,
+.app-main .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:focus:last-child {
+  box-shadow: 0 0 0 2px var(--color-focus);
+  border-radius: inherit;
+}
+
+.app-main .maplibregl-ctrl-bottom-right button.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%233e6b4e' viewBox='0 0 29 29'%3E%3Cpath d='M14.5 8.5c-.75 0-1.5.75-1.5 1.5v3h-3c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h3v3c0 .75.75 1.5 1.5 1.5S16 19.75 16 19v-3h3c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13h-3v-3c0-.75-.75-1.5-1.5-1.5'/%3E%3C/svg%3E");
+}
+
+.app-main .maplibregl-ctrl-bottom-right button.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='%233e6b4e' viewBox='0 0 29 29'%3E%3Cpath d='M10 13c-.75 0-1.5.75-1.5 1.5S9.25 16 10 16h9c.75 0 1.5-.75 1.5-1.5S19.75 13 19 13z'/%3E%3C/svg%3E");
+}
+
+.app-main .maplibregl-ctrl-bottom-right button.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cpath fill='%233e6b4e' d='m10.5 14 4-8 4 8z'/%3E%3Cpath fill='%23eaf2e4' d='m10.5 16 4 8 4-8z'/%3E%3C/svg%3E");
+}
+
+/* Locate-me control — a branded circular pill (rounded-full, shadowed,
+   like the view toggle), deliberately a different shape from the
+   zoom/compass stack it shares the corner with: a single round action
+   button reads as distinct from a grouped multi-button utility, even
+   though both now share the same surface/shadow/border vocabulary. */
 .locate-control__wrap {
   position: relative;
 }
