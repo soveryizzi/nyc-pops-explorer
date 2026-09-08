@@ -187,7 +187,17 @@ export function MapView({
       <LocateControl onLocate={handleLocate} />
       <NavigationControl position="bottom-right" />
       {userLocation && (
-        <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
+        // Explicit z-index on the marker's own container (not just DOM
+        // order) so it stays above every POPS/transit marker even
+        // though a selected space pin sets its own zIndex as high as
+        // 10 (see SpaceMarker) — 50 comfortably clears that regardless
+        // of paint order.
+        <Marker
+          longitude={userLocation.lng}
+          latitude={userLocation.lat}
+          anchor="center"
+          style={{ zIndex: 50 }}
+        >
           <UserLocationMarker />
         </Marker>
       )}
