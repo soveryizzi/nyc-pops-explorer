@@ -355,7 +355,6 @@ a:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
   min-height: var(--touch-target);
   border: 2px solid var(--color-accent);
   border-radius: var(--radius-full);
@@ -371,24 +370,6 @@ a:focus-visible {
 
 .app-header__clear:hover {
   background: var(--on-primary-veil-weak);
-}
-
-/* Same honey-badge language as the filter icon's count (see
-   .icon-button__badge) — inline here instead of corner-absolute,
-   since this is a pill-shaped text button, not a square icon one. */
-.app-header__clear-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-ink);
-  font-size: var(--type-size-xs);
-  font-weight: var(--type-weight-extrabold);
-  line-height: 1;
 }
 
 .app-header__done {
