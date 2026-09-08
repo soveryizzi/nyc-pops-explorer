@@ -23,6 +23,7 @@
    never vanishes into its background. */
 .chip:focus-visible,
 .icon-button:focus-visible,
+.locate-button:focus-visible,
 .view-toggle__button:focus-visible,
 .space-card:focus-visible,
 .button:focus-visible,
@@ -925,6 +926,52 @@ a:focus-visible {
   opacity: 1;
 }
 
+/* "You are here" — the app's one non-semantic hue (accent honey;
+   terracotta/lake are already outdoor/indoor) so it never reads as a
+   third space category. A continuous sonar-style ping, unlike the
+   POPS pulse's one-shot flash, since this marker just sits and marks
+   a place rather than announcing a single action. */
+.user-location-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+
+.user-location-marker__dot {
+  position: absolute;
+  inset: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.user-location-marker__ping {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  animation: locate-ping var(--motion-duration-locate-ping) var(--motion-ease) infinite;
+}
+
+@keyframes locate-ping {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-location-marker__ping {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .transit-popup .maplibregl-popup-content {
   display: flex;
   flex-direction: column;
@@ -1100,6 +1147,93 @@ a:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Locate-me control — a branded pill (rounded, shadowed, like the
+   view toggle) sitting deliberately apart from the plain square
+   maplibre zoom buttons it shares the corner with: a pill reads as
+   an intentional app action, not a neutral map utility. */
+.locate-control__wrap {
+  position: relative;
+}
+
+.locate-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease),
+    color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.locate-button .material-icons {
+  font-size: var(--type-size-lg);
+}
+
+.locate-button:hover {
+  background: var(--color-surface-mint);
+}
+
+.locate-button:disabled {
+  cursor: default;
+}
+
+.locate-button[data-status='denied'],
+.locate-button[data-status='error'] {
+  color: var(--color-error);
+}
+
+.locate-button__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  animation: spin 0.7s linear infinite;
+}
+
+.locate-tooltip {
+  position: absolute;
+  right: calc(100% + var(--space-2));
+  bottom: 0;
+  margin: 0;
+  width: max-content;
+  max-width: 220px;
+  background: var(--color-ink);
+  color: var(--color-surface);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-semibold);
+  line-height: 1.4;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  animation: locate-tooltip-in var(--motion-duration-fast) var(--motion-ease);
+}
+
+@keyframes locate-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .locate-button__spinner {
+    animation: none;
+  }
+
+  .locate-tooltip {
+    animation: none;
+  }
 }
 
 .view-toggle__button {

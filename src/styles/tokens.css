@@ -117,6 +117,10 @@
   --motion-duration-sheet-in: 420ms;
   --motion-duration-sheet-out: 320ms;
   --motion-duration-pulse: 900ms;
+  /* The "you are here" marker's looping sonar ping — much slower than
+     the one-shot pulse above since it repeats indefinitely rather
+     than announcing a single action. */
+  --motion-duration-locate-ping: 2000ms;
   --motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --motion-ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
   /* Gentler than --motion-ease-spring's 1.4 overshoot — the sheet is
@@ -162,5 +166,6 @@
     --motion-duration-sheet-in: 0ms;
     --motion-duration-sheet-out: 0ms;
     --motion-duration-pulse: 0ms;
+    --motion-duration-locate-ping: 0ms;
   }
 }

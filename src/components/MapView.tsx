@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map, { Marker, NavigationControl, Popup, type MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import subwayStations from '../data/subway-stations-snapshot.json'
 import { INITIAL_VIEW_STATE, MAP_STYLE_URL, routeColor } from '../lib/constants'
 import type { PopsSpace } from '../lib/resolvers'
+import { LocateControl } from './LocateControl'
 import { SpaceMarker } from './SpaceMarker'
 import { TransitMarker } from './TransitMarker'
+import { UserLocationMarker } from './UserLocationMarker'
 
 interface MapViewProps {
   spaces: PopsSpace[]
@@ -49,6 +51,28 @@ export function MapView({
   const mapRef = useRef<MapRef>(null)
   const mappable = useMemo(() => spaces.filter((space) => space.coordinates !== null), [spaces])
   const selectedCoords = selectedId ? spaces.find((s) => s.id === selectedId)?.coordinates ?? null : null
+
+  // How much of the map's edges the mobile chrome currently covers —
+  // shared by the selection fly-to below and the locate-me fly-to, so
+  // a centered target lands in the same visible slice of map either way.
+  // Stable across renders (only changes with isMobile) so it can sit
+  // in the selection effect's deps without re-running on every render.
+  const chromePadding = useCallback(() => {
+    const rootStyle = getComputedStyle(document.documentElement)
+    const topbarHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--app-header-height')) || 0 : 0
+    // --mobile-sheet-height is published by MobileSheet with its exact
+    // current on-screen height (default or dragged) — reads as 0
+    // whenever no sheet is mounted, so this doubles as the "is
+    // anything covering the bottom of the map" check.
+    const sheetHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--mobile-sheet-height')) || 0 : 0
+    return { top: topbarHeight + 16, bottom: sheetHeight, left: 0, right: 0 }
+  }, [isMobile])
+
+  const [userLocation, setUserLocation] = useState<{ lng: number; lat: number } | null>(null)
+  const handleLocate = ({ lng, lat }: { lng: number; lat: number; accuracy: number }) => {
+    setUserLocation({ lng, lat })
+    mapRef.current?.flyTo({ center: [lng, lat], zoom: 15, duration: 1000, padding: chromePadding() })
+  }
 
   // Subway station labels: tap a dot to show its name, tap the dot
   // again or anywhere else on the map to hide it — independent of
@@ -126,25 +150,13 @@ export function MapView({
 
   useEffect(() => {
     if (!selectedCoords) return
-    const rootStyle = getComputedStyle(document.documentElement)
-    // --mobile-sheet-height is published by MobileSheet with its exact
-    // current on-screen height (default or dragged) —
-    // reads as 0 whenever no sheet is mounted, so this doubles as the
-    // "is anything covering the bottom of the map" check.
-    const topbarHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--app-header-height')) || 0 : 0
-    const sheetHeight = isMobile ? parseFloat(rootStyle.getPropertyValue('--mobile-sheet-height')) || 0 : 0
     mapRef.current?.flyTo({
       center: [selectedCoords.lng, selectedCoords.lat],
       zoom: 14,
       duration: 800,
-      padding: {
-        top: topbarHeight + 16,
-        bottom: sheetHeight,
-        left: 0,
-        right: 0,
-      },
+      padding: chromePadding(),
     })
-  }, [selectedCoords, focusToken, isMobile])
+  }, [selectedCoords, focusToken, chromePadding])
 
   useEffect(() => {
     if (!resetToken) return
@@ -170,7 +182,15 @@ export function MapView({
         setActiveStationId(null)
       }}
     >
+      {/* Mounted first so it stacks above the zoom buttons in
+          maplibre's own bottom-right corner layout. */}
+      <LocateControl onLocate={handleLocate} />
       <NavigationControl position="bottom-right" />
+      {userLocation && (
+        <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
+          <UserLocationMarker />
+        </Marker>
+      )}
       {showTransit &&
         visibleStations.map((station) => (
           <Marker key={station.id} longitude={station.lng} latitude={station.lat} anchor="center">
