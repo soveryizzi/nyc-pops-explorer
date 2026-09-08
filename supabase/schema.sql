@@ -22,7 +22,11 @@
 -- rows to correlate by hand.
 --
 -- 'feedback' rows aren't tied to a space (general app feedback, not a
--- correction) — space_id is nullable for exactly this kind.
+-- correction) — space_id is nullable for exactly this kind. They may
+-- optionally carry a photo_path too (same upload flow as 'photo'/
+-- 'plate', just under a 'feedback/' storage prefix instead of a
+-- per-space one) — the content check below only requires 'message'
+-- for this kind, so a photo alongside it is allowed, not required.
 
 create table public.submissions (
   id uuid primary key default gen_random_uuid(),

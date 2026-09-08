@@ -32,10 +32,19 @@ interface SubmissionRow {
 
 const BUCKET = 'pops-photos'
 
+function fileExt(file: File): string {
+  return (file.name.split('.').pop() ?? 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
+}
+
 function photoPath(spaceId: string, file: File): string {
-  const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
   const safeSpace = spaceId.replace(/[^a-zA-Z0-9_-]/g, '-')
-  return `${safeSpace}/${crypto.randomUUID()}.${ext}`
+  return `${safeSpace}/${crypto.randomUUID()}.${fileExt(file)}`
+}
+
+// Feedback isn't tied to a space, so its photos get their own storage
+// prefix rather than reusing a per-space folder.
+function feedbackPhotoPath(file: File): string {
+  return `feedback/${crypto.randomUUID()}.${fileExt(file)}`
 }
 
 export async function submitHours(spaceId: string, hoursText: string): Promise<void> {
@@ -80,12 +89,24 @@ export async function submitPlate(spaceId: string, file: File, hoursText: string
 }
 
 // General app feedback, not tied to any space — space_id is left out
-// of the insert (nullable column, exactly for this kind).
-export async function submitFeedback(message: string, email?: string): Promise<void> {
+// of the insert (nullable column, exactly for this kind). The photo
+// is optional and, when present, goes through the same
+// upload-then-reference-the-path flow as submitPhoto/submitPlate.
+export async function submitFeedback(message: string, email?: string, photo?: File): Promise<void> {
   if (!supabase) throw new Error('Submissions are not configured')
+
+  let path: string | undefined
+  if (photo) {
+    path = feedbackPhotoPath(photo)
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET)
+      .upload(path, photo, { contentType: photo.type || undefined })
+    if (uploadError) throw uploadError
+  }
+
   const { error } = await supabase
     .from('submissions')
-    .insert({ kind: 'feedback', message, email: email || null })
+    .insert({ kind: 'feedback', message, email: email || null, photo_path: path ?? null })
   if (error) throw error
 }
 

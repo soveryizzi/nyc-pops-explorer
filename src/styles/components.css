@@ -35,6 +35,7 @@
 .app-header__clear:focus-visible,
 .app-header__done:focus-visible,
 .app-header__title-button:focus-visible,
+.feedback-form__photo-remove:focus-visible,
 .toggle:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
@@ -45,7 +46,8 @@ a:focus-visible {
    inside its <label> — keyboard focus lands on the input, not the
    label, so :focus-within (not :focus-visible) is what needs to show
    the ring on the visible tile. */
-.photo-grid__add:focus-within {
+.photo-grid__add:focus-within,
+.feedback-form__photo-add:focus-within {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -57,7 +59,12 @@ a:focus-visible {
 .app-header .app-header__clear:focus-visible,
 .app-header .app-header__done:focus-visible,
 .app-header .app-header__title-button:focus-visible,
+.app-header .feedback-form__photo-remove:focus-visible,
 .app-header .toggle:focus-visible {
+  outline-color: var(--color-on-primary);
+}
+
+.app-header .feedback-form__photo-add:focus-within {
   outline-color: var(--color-on-primary);
 }
 
@@ -348,6 +355,7 @@ a:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-1);
   min-height: var(--touch-target);
   border: 2px solid var(--color-accent);
   border-radius: var(--radius-full);
@@ -363,6 +371,24 @@ a:focus-visible {
 
 .app-header__clear:hover {
   background: var(--on-primary-veil-weak);
+}
+
+/* Same honey-badge language as the filter icon's count (see
+   .icon-button__badge) — inline here instead of corner-absolute,
+   since this is a pill-shaped text button, not a square icon one. */
+.app-header__clear-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-ink);
+  font-size: var(--type-size-xs);
+  font-weight: var(--type-weight-extrabold);
+  line-height: 1;
 }
 
 .app-header__done {
@@ -443,6 +469,60 @@ a:focus-visible {
 .feedback-form__submit {
   align-self: flex-start;
   padding: var(--space-2) var(--space-4);
+}
+
+/* Optional photo attachment — on-primary (green header) styling to
+   match the rest of the form, unlike PhotosSection's add-tile which
+   lives on a white/cream sheet surface. */
+.feedback-form__photo-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px dashed var(--on-primary-outline);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.feedback-form__photo-add:hover {
+  background: var(--on-primary-veil-weak);
+}
+
+.feedback-form__photo-add svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.feedback-form__photo-attached {
+  margin: 0;
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  font-size: var(--type-size-sm);
+  font-weight: var(--type-weight-semibold);
+  color: var(--color-on-primary);
+}
+
+.feedback-form__photo-remove {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-left: var(--space-1);
+  color: var(--color-on-primary);
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .feedback-form__status {

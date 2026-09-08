@@ -201,6 +201,9 @@ export function AppHeader({
               onClick={() => update({ borough: [], type: [], ada: [], amenity: [], q: '' }, { push: true })}
             >
               Clear filters
+              <span className="app-header__clear-count" aria-hidden="true">
+                {activeCount}
+              </span>
             </button>
           )}
           {anyPanelOpen && (

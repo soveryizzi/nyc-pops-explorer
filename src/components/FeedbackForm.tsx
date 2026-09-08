@@ -1,20 +1,47 @@
-import { useId, useState, type FormEvent } from 'react'
-import { submissionsEnabled, submitFeedback } from '../lib/submissions'
+import { useId, useRef, useState, type FormEvent } from 'react'
+import { prepareImageForUpload } from '../lib/image'
+import { MAX_PHOTO_BYTES, submissionsEnabled, submitFeedback } from '../lib/submissions'
 
 // Lives inside the settings panel (see SettingsPanel) — general
 // app feedback, not tied to any space, so unlike PhotosSection there's
-// no spaceId to thread through.
+// no spaceId to thread through. The optional photo attachment reuses
+// PhotosSection's exact pick -> resize/compress -> size-check pipeline
+// (see prepareImageForUpload/MAX_PHOTO_BYTES) — just without the OCR
+// step, since that's specific to a location's posted-hours plate.
 export function FeedbackForm() {
   const [message, setMessage] = useState('')
   const [email, setEmail] = useState('')
+  const [photo, setPhoto] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const messageId = useId()
   const emailId = useId()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!submissionsEnabled) {
     return <p className="feedback-form__unavailable">Feedback isn't available right now.</p>
+  }
+
+  const removePhoto = () => {
+    setPhoto(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const handlePhotoChange = async (rawFile: File | undefined) => {
+    setError(null)
+    setSuccess(null)
+    if (!rawFile) {
+      removePhoto()
+      return
+    }
+    const prepared = await prepareImageForUpload(rawFile)
+    if (prepared.size > MAX_PHOTO_BYTES) {
+      setError('That photo is too large. Try a different one.')
+      removePhoto()
+      return
+    }
+    setPhoto(prepared)
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -26,10 +53,11 @@ export function FeedbackForm() {
     setError(null)
     setSuccess(null)
     try {
-      await submitFeedback(trimmed, email.trim() || undefined)
+      await submitFeedback(trimmed, email.trim() || undefined, photo ?? undefined)
       setSuccess('Thanks for the feedback!')
       setMessage('')
       setEmail('')
+      removePhoto()
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
@@ -54,6 +82,47 @@ export function FeedbackForm() {
           required
         />
       </div>
+
+      <div className="feedback-form__field">
+        {photo ? (
+          <p className="feedback-form__photo-attached">
+            <span aria-hidden="true">✓ </span>
+            Photo attached —{' '}
+            <button
+              type="button"
+              className="feedback-form__photo-remove"
+              onClick={removePhoto}
+              disabled={busy}
+            >
+              remove
+            </button>
+          </p>
+        ) : (
+          <label className="feedback-form__photo-add">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => handlePhotoChange(e.target.files?.[0])}
+              disabled={busy}
+            />
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add a photo (optional)
+          </label>
+        )}
+      </div>
+
       <div className="feedback-form__field">
         <label htmlFor={emailId} className="feedback-form__label">
           Email (optional)
