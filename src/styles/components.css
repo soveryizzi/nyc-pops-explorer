@@ -933,17 +933,17 @@ a:focus-visible {
    a place rather than announcing a single action. */
 .user-location-marker {
   position: relative;
-  width: 16px;
-  height: 16px;
+  width: 26px;
+  height: 26px;
 }
 
 .user-location-marker__dot {
   position: absolute;
-  inset: 3px;
+  inset: 5px;
   border-radius: var(--radius-full);
   background: var(--color-accent);
-  border: 2px solid var(--color-surface);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  border: 2.5px solid var(--color-surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
 .user-location-marker__ping {
