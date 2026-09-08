@@ -32,6 +32,17 @@ interface SubmissionRow {
 
 const BUCKET = 'pops-photos'
 
+// Thrown specifically when the storage upload step fails, so a caller
+// can tell "your photo didn't make it up" apart from "the submission
+// itself couldn't be saved" — two different, differently-actionable
+// messages to show (see FeedbackForm's error handling).
+export class PhotoUploadError extends Error {
+  constructor() {
+    super('Photo upload failed')
+    this.name = 'PhotoUploadError'
+  }
+}
+
 function fileExt(file: File): string {
   return (file.name.split('.').pop() ?? 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
 }
@@ -72,7 +83,7 @@ export async function submitPhoto(
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, { contentType: file.type || undefined })
-  if (uploadError) throw uploadError
+  if (uploadError) throw new PhotoUploadError()
 
   const { error } = await supabase
     .from('submissions')
@@ -96,7 +107,7 @@ export async function submitPlate(
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, { contentType: file.type || undefined })
-  if (uploadError) throw uploadError
+  if (uploadError) throw new PhotoUploadError()
 
   const { error } = await supabase.from('submissions').insert({
     space_id: spaceId,
@@ -122,7 +133,7 @@ export async function submitFeedback(message: string, email?: string, photo?: Fi
     const { error: uploadError } = await supabase.storage
       .from(BUCKET)
       .upload(path, photo, { contentType: photo.type || undefined })
-    if (uploadError) throw uploadError
+    if (uploadError) throw new PhotoUploadError()
   }
 
   const { error } = await supabase

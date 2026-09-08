@@ -3,7 +3,21 @@ import { matchSpaceByAddress } from '../lib/addressMatch'
 import { prepareImageForUpload } from '../lib/image'
 import { scanPhotoForHours } from '../lib/ocr'
 import type { PopsSpace } from '../lib/resolvers'
-import { MAX_PHOTO_BYTES, submissionsEnabled, submitFeedback, submitPhoto, submitPlate } from '../lib/submissions'
+import {
+  MAX_PHOTO_BYTES,
+  PhotoUploadError,
+  submissionsEnabled,
+  submitFeedback,
+  submitPhoto,
+  submitPlate,
+} from '../lib/submissions'
+
+// Tesseract occasionally hangs rather than erroring outright — without
+// a ceiling, that leaves the submit button disabled (scanning never
+// resolves) with no explanation. Racing it against this gives up and
+// degrades to "no location/hours detected" the same way a real OCR
+// failure already does, instead of stalling indefinitely.
+const OCR_TIMEOUT_MS = 20000
 
 interface FeedbackFormProps {
   /* The full (unfiltered) space list — address-matching an attached
@@ -64,12 +78,15 @@ export function FeedbackForm({ spaces }: FeedbackFormProps) {
     setMatchedSpace(null)
     setScanning(true)
     try {
-      const { rawText, hoursGuess } = await scanPhotoForHours(prepared)
+      const { rawText, hoursGuess } = await Promise.race([
+        scanPhotoForHours(prepared),
+        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error('OCR timed out')), OCR_TIMEOUT_MS)),
+      ])
       setHoursGuess(hoursGuess)
       setMatchedSpace(matchSpaceByAddress(rawText, spaces))
     } catch {
-      // OCR failing entirely just means no auto-detected location or
-      // hours — the photo still attaches, as plain feedback.
+      // OCR failing or timing out just means no auto-detected location
+      // or hours — the photo still attaches, as plain feedback.
     } finally {
       setScanning(false)
     }
@@ -78,49 +95,73 @@ export function FeedbackForm({ spaces }: FeedbackFormProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     const trimmed = message.trim()
-    if (!trimmed) return
+    // A photo by itself is a complete submission now — only block
+    // sending literally nothing.
+    if (!trimmed && !photo) return
 
     setBusy(true)
     setError(null)
     setSuccess(null)
+
+    const trimmedEmail = email.trim() || undefined
+    const attachedToSpace = Boolean(photo && matchedSpace)
+
     try {
-      const trimmedEmail = email.trim() || undefined
       if (photo && matchedSpace) {
         if (hoursGuess) {
           await submitPlate(matchedSpace.id, photo, hoursGuess, trimmed, trimmedEmail)
         } else {
           await submitPhoto(matchedSpace.id, photo, trimmed, trimmedEmail)
         }
-        setSuccess(`Thanks! We matched this to ${matchedSpace.name}. It'll appear there once reviewed.`)
       } else {
         await submitFeedback(trimmed, trimmedEmail, photo ?? undefined)
-        setSuccess('Thanks for the feedback!')
       }
-      setMessage('')
-      setEmail('')
-      removePhoto()
-    } catch {
-      setError('Something went wrong. Please try again.')
-    } finally {
+    } catch (err) {
+      // Ordered by how likely each is to be the real cause: a dropped
+      // connection explains almost any failure here (there's no other
+      // backend in this flow), so it's checked first regardless of
+      // which specific call threw. PhotoUploadError narrows "the photo
+      // itself didn't make it up" from "the submission wasn't saved" —
+      // two different, differently-actionable things to tell someone.
+      if (!navigator.onLine) {
+        setError("You're offline. Check your connection and try again.")
+      } else if (err instanceof PhotoUploadError) {
+        setError("We couldn't upload your photo. Please try again.")
+      } else {
+        setError("We couldn't send your feedback. Please try again.")
+      }
       setBusy(false)
+      return
     }
+
+    const sentPhoto = Boolean(photo)
+    const sentMessage = Boolean(trimmed)
+    const whatWasSent = sentMessage && sentPhoto ? 'feedback and photo' : sentPhoto ? 'photo' : 'feedback'
+    setSuccess(
+      attachedToSpace
+        ? `Thanks! We matched your ${whatWasSent} to ${matchedSpace!.name}. It'll appear there once reviewed.`
+        : `Thanks for the ${whatWasSent}!`,
+    )
+    setMessage('')
+    setEmail('')
+    removePhoto()
+    setBusy(false)
   }
 
   return (
     <form className="feedback-form" onSubmit={handleSubmit}>
       <div className="feedback-form__field">
         <label htmlFor={messageId} className="feedback-form__label">
-          Any feedback to share?
+          Feedback, comments, or uploads
         </label>
         <textarea
           id={messageId}
           className="feedback-form__textarea"
-          placeholder="Bugs, ideas, missing spaces — anything goes"
+          placeholder="Bugs, ideas, missing spaces. Anything goes, or just attach a photo below."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           disabled={busy}
           rows={3}
-          required
         />
       </div>
 
@@ -196,7 +237,7 @@ export function FeedbackForm({ spaces }: FeedbackFormProps) {
       <button
         type="submit"
         className="app-header__done feedback-form__submit"
-        disabled={busy || scanning || !message.trim()}
+        disabled={busy || scanning || (!message.trim() && !photo)}
       >
         {busy ? 'Sending…' : 'Send feedback'}
       </button>
