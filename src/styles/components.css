@@ -503,13 +503,50 @@ a:focus-visible {
 }
 
 .feedback-form__photo-attached {
-  margin: 0;
-  min-height: var(--touch-target);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  justify-content: center;
+}
+
+.feedback-form__photo-main {
+  margin: 0;
   font-size: var(--type-size-sm);
   font-weight: var(--type-weight-semibold);
   color: var(--color-on-primary);
+}
+
+/* Secondary info under the main "attached" line, so it's the quieter
+   on-primary tone + smaller size rather than repeating the line above. */
+.feedback-form__photo-hint,
+.feedback-form__photo-scanning {
+  margin: 0;
+  font-size: var(--type-size-xs);
+  color: var(--on-primary-muted);
+}
+
+.feedback-form__photo-scanning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.feedback-form__photo-scanning::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--on-primary-outline);
+  border-top-color: var(--color-on-primary);
+  animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-form__photo-scanning::before {
+    animation: none;
+  }
 }
 
 .feedback-form__photo-remove {
@@ -648,13 +685,20 @@ a:focus-visible {
 .settings-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .settings-panel__section {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+/* A rule between sections instead of gap alone, so the panel reads as
+   one continuous sheet rather than stacked cards. */
+.settings-panel__section:not(:first-child) {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--on-primary-outline);
 }
 
 .settings-panel__heading {

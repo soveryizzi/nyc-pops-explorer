@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { countActiveFilters } from '../hooks/useFilters'
 import type { UseUrlStateResult } from '../hooks/useUrlState'
+import type { PopsSpace } from '../lib/resolvers'
 import { FilterPanel } from './FilterPanel'
 import { SearchBar } from './SearchBar'
 import { SettingsPanel } from './SettingsPanel'
@@ -16,6 +17,9 @@ interface AppHeaderProps {
      POPS space filter, so it isn't part of the URL-driven FilterState. */
   showTransit: boolean
   onToggleTransit: (show: boolean) => void
+  /* The full (unfiltered) space list — passed down to the settings
+     panel's feedback form for address-matching an attached photo. */
+  spaces: PopsSpace[]
   /* Mobile wiring (App passes these; the desktop Sidebar doesn't):
      reports whether any panel is open so App can hide the map/list
      toggle underneath, and closeToken bumps close the open panel
@@ -31,6 +35,7 @@ export function AppHeader({
   onReset,
   showTransit,
   onToggleTransit,
+  spaces,
   onPanelOpenChange,
   closeToken,
 }: AppHeaderProps) {
@@ -185,7 +190,7 @@ export function AppHeader({
       </div>
       <div id="settings-panel" className="app-header__panel" data-open={settingsOpen} inert={!settingsOpen}>
         <div className="app-header__panel-inner">
-          <SettingsPanel showTransit={showTransit} onToggleTransit={onToggleTransit} />
+          <SettingsPanel showTransit={showTransit} onToggleTransit={onToggleTransit} spaces={spaces} />
         </div>
       </div>
 

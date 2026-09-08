@@ -27,6 +27,15 @@
 -- 'plate', just under a 'feedback/' storage prefix instead of a
 -- per-space one) — the content check below only requires 'message'
 -- for this kind, so a photo alongside it is allowed, not required.
+--
+-- The general feedback form also auto-detects, client-side, whether
+-- an attached photo's text names a specific POPS address (see
+-- src/lib/addressMatch.ts) — when it confidently matches exactly one
+-- space, the submission is inserted as 'photo'/'plate' against that
+-- space_id instead of 'feedback', carrying the visitor's typed
+-- message/email along with it (both columns are nullable and
+-- unrestricted for those kinds, same as photo_path is for 'feedback').
+-- No match, or an ambiguous one, falls back to a plain 'feedback' row.
 
 create table public.submissions (
   id uuid primary key default gen_random_uuid(),

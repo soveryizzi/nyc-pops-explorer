@@ -112,6 +112,7 @@ function App() {
       {!isMobile && (
         <Sidebar
           spaces={filteredSpaces}
+          allSpaces={spaces}
           filters={filters}
           update={update}
           selectedId={filters.space}
@@ -140,6 +141,7 @@ function App() {
               onReset={handleReset}
               showTransit={showTransit}
               onToggleTransit={setShowTransit}
+              spaces={spaces}
               onPanelOpenChange={setHeaderPanelOpen}
               closeToken={headerCloseToken}
             />

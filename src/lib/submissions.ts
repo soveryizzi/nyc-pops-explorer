@@ -55,7 +55,17 @@ export async function submitHours(spaceId: string, hoursText: string): Promise<v
   if (error) throw error
 }
 
-export async function submitPhoto(spaceId: string, file: File): Promise<void> {
+// `message`/`email` are optional extras: PhotosSection's per-space
+// flow never sends them, but the general feedback form does when it
+// auto-matches an uploaded photo to a space (see FeedbackForm +
+// lib/addressMatch) — the visitor's typed note shouldn't vanish just
+// because their photo got redirected out of the plain 'feedback' kind.
+export async function submitPhoto(
+  spaceId: string,
+  file: File,
+  message?: string,
+  email?: string,
+): Promise<void> {
   if (!supabase) throw new Error('Submissions are not configured')
   const path = photoPath(spaceId, file)
 
@@ -66,14 +76,20 @@ export async function submitPhoto(spaceId: string, file: File): Promise<void> {
 
   const { error } = await supabase
     .from('submissions')
-    .insert({ space_id: spaceId, kind: 'photo', photo_path: path })
+    .insert({ space_id: spaceId, kind: 'photo', photo_path: path, message: message || null, email: email || null })
   if (error) throw error
 }
 
 // A photo of the legally-required hours plate, OCR'd client-side. One
 // row carries both hours_text and photo_path, so a moderator reviews
 // the claimed hours right next to the photo they were read from.
-export async function submitPlate(spaceId: string, file: File, hoursText: string): Promise<void> {
+export async function submitPlate(
+  spaceId: string,
+  file: File,
+  hoursText: string,
+  message?: string,
+  email?: string,
+): Promise<void> {
   if (!supabase) throw new Error('Submissions are not configured')
   const path = photoPath(spaceId, file)
 
@@ -82,9 +98,14 @@ export async function submitPlate(spaceId: string, file: File, hoursText: string
     .upload(path, file, { contentType: file.type || undefined })
   if (uploadError) throw uploadError
 
-  const { error } = await supabase
-    .from('submissions')
-    .insert({ space_id: spaceId, kind: 'plate', photo_path: path, hours_text: hoursText })
+  const { error } = await supabase.from('submissions').insert({
+    space_id: spaceId,
+    kind: 'plate',
+    photo_path: path,
+    hours_text: hoursText,
+    message: message || null,
+    email: email || null,
+  })
   if (error) throw error
 }
 

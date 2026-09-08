@@ -1,17 +1,33 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { matchSpaceByAddress } from '../lib/addressMatch'
 import { prepareImageForUpload } from '../lib/image'
-import { MAX_PHOTO_BYTES, submissionsEnabled, submitFeedback } from '../lib/submissions'
+import { scanPhotoForHours } from '../lib/ocr'
+import type { PopsSpace } from '../lib/resolvers'
+import { MAX_PHOTO_BYTES, submissionsEnabled, submitFeedback, submitPhoto, submitPlate } from '../lib/submissions'
 
-// Lives inside the settings panel (see SettingsPanel) — general
-// app feedback, not tied to any space, so unlike PhotosSection there's
-// no spaceId to thread through. The optional photo attachment reuses
-// PhotosSection's exact pick -> resize/compress -> size-check pipeline
-// (see prepareImageForUpload/MAX_PHOTO_BYTES) — just without the OCR
-// step, since that's specific to a location's posted-hours plate.
-export function FeedbackForm() {
+interface FeedbackFormProps {
+  /* The full (unfiltered) space list — address-matching an attached
+     photo shouldn't depend on whatever the visitor currently has
+     filtered/searched for on the map. */
+  spaces: PopsSpace[]
+}
+
+// Lives inside the settings panel (see SettingsPanel) — general app
+// feedback, not tied to any space up front. An attached photo runs
+// through the same OCR pass PhotosSection uses for a specific
+// location's plate (see lib/ocr): if the text names a POPS address
+// confidently matching exactly one known space, the submission is
+// redirected to that space's own photo/plate record instead of
+// staying a plain, space-less feedback row (see lib/addressMatch for
+// the matching rule, and why "no confident match" always falls back
+// to plain feedback rather than guessing).
+export function FeedbackForm({ spaces }: FeedbackFormProps) {
   const [message, setMessage] = useState('')
   const [email, setEmail] = useState('')
   const [photo, setPhoto] = useState<File | null>(null)
+  const [scanning, setScanning] = useState(false)
+  const [hoursGuess, setHoursGuess] = useState<string | null>(null)
+  const [matchedSpace, setMatchedSpace] = useState<PopsSpace | null>(null)
   const [busy, setBusy] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -25,6 +41,8 @@ export function FeedbackForm() {
 
   const removePhoto = () => {
     setPhoto(null)
+    setHoursGuess(null)
+    setMatchedSpace(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -42,6 +60,19 @@ export function FeedbackForm() {
       return
     }
     setPhoto(prepared)
+    setHoursGuess(null)
+    setMatchedSpace(null)
+    setScanning(true)
+    try {
+      const { rawText, hoursGuess } = await scanPhotoForHours(prepared)
+      setHoursGuess(hoursGuess)
+      setMatchedSpace(matchSpaceByAddress(rawText, spaces))
+    } catch {
+      // OCR failing entirely just means no auto-detected location or
+      // hours — the photo still attaches, as plain feedback.
+    } finally {
+      setScanning(false)
+    }
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -53,8 +84,18 @@ export function FeedbackForm() {
     setError(null)
     setSuccess(null)
     try {
-      await submitFeedback(trimmed, email.trim() || undefined, photo ?? undefined)
-      setSuccess('Thanks for the feedback!')
+      const trimmedEmail = email.trim() || undefined
+      if (photo && matchedSpace) {
+        if (hoursGuess) {
+          await submitPlate(matchedSpace.id, photo, hoursGuess, trimmed, trimmedEmail)
+        } else {
+          await submitPhoto(matchedSpace.id, photo, trimmed, trimmedEmail)
+        }
+        setSuccess(`Thanks! We matched this to ${matchedSpace.name}. It'll appear there once reviewed.`)
+      } else {
+        await submitFeedback(trimmed, trimmedEmail, photo ?? undefined)
+        setSuccess('Thanks for the feedback!')
+      }
       setMessage('')
       setEmail('')
       removePhoto()
@@ -85,18 +126,33 @@ export function FeedbackForm() {
 
       <div className="feedback-form__field">
         {photo ? (
-          <p className="feedback-form__photo-attached">
-            <span aria-hidden="true">✓ </span>
-            Photo attached —{' '}
-            <button
-              type="button"
-              className="feedback-form__photo-remove"
-              onClick={removePhoto}
-              disabled={busy}
-            >
-              remove
-            </button>
-          </p>
+          <div className="feedback-form__photo-attached">
+            <p className="feedback-form__photo-main">
+              <span aria-hidden="true">✓ </span>
+              Photo attached.{' '}
+              <button
+                type="button"
+                className="feedback-form__photo-remove"
+                onClick={removePhoto}
+                disabled={busy}
+              >
+                Remove
+              </button>
+            </p>
+            {scanning && (
+              <p className="feedback-form__photo-scanning" role="status">
+                Checking the photo for a location and posted hours…
+              </p>
+            )}
+            {!scanning && matchedSpace && (
+              <p className="feedback-form__photo-hint">
+                Looks like {matchedSpace.name}.{' '}
+                {hoursGuess
+                  ? "We'll attach this there, along with the hours it shows."
+                  : "We'll attach this there instead of general feedback."}
+              </p>
+            )}
+          </div>
         ) : (
           <label className="feedback-form__photo-add">
             <input
@@ -140,7 +196,7 @@ export function FeedbackForm() {
       <button
         type="submit"
         className="app-header__done feedback-form__submit"
-        disabled={busy || !message.trim()}
+        disabled={busy || scanning || !message.trim()}
       >
         {busy ? 'Sending…' : 'Send feedback'}
       </button>

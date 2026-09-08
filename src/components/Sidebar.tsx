@@ -4,7 +4,13 @@ import { AppHeader } from './AppHeader'
 import { ResultList } from './ResultList'
 
 interface SidebarProps {
+  /* The filtered/searched list — what's actually shown in the results
+     column below. */
   spaces: PopsSpace[]
+  /* The full, unfiltered list — threaded through to AppHeader's
+     settings panel for the feedback form's photo address-matching,
+     which shouldn't depend on the visitor's current filter/search. */
+  allSpaces: PopsSpace[]
   filters: UseUrlStateResult['filters']
   update: UseUrlStateResult['update']
   selectedId: string | null
@@ -18,6 +24,7 @@ interface SidebarProps {
 
 export function Sidebar({
   spaces,
+  allSpaces,
   filters,
   update,
   selectedId,
@@ -37,6 +44,7 @@ export function Sidebar({
         onReset={onReset}
         showTransit={showTransit}
         onToggleTransit={onToggleTransit}
+        spaces={allSpaces}
       />
       <ResultList
         spaces={spaces}
