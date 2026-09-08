@@ -1,0 +1,25 @@
+name: Keep Supabase awake
+
+# Supabase's free tier auto-pauses a project after roughly a week with
+# no API activity — that's what took the project down once already
+# (see the app's Supabase-unreachable incident). This makes a trivial,
+# read-only request against the submissions table on a schedule well
+# inside that window, so the project never sits idle long enough to
+# trigger it. workflow_dispatch lets it be triggered manually too, to
+# confirm the secrets below are set up correctly.
+
+on:
+  schedule:
+    - cron: '0 12 * * 1,4' # Mondays and Thursdays at 12:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -sf --max-time 15 \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/submissions?select=id&limit=1"
